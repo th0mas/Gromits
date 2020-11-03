@@ -28,3 +28,44 @@ This should be done in the most robust, and lowest maintenance way possible.
 Our firmware is a local web server based on the Java Spring framework.
 This will host a JavaScript application that will display the video feed from
 other Gromits and broadcast a video feed from the Gromits own webcam.
+
+### Dependencies
+
+* JDK 15+
+* Node 14.x (Only required for frontend development)
+
+#### Getting started
+
+Clone the repository
+```
+git clone https://github.com/spe-uob/GromitsRepo
+```
+
+Pull dependencies and build
+**(This will take a long time, but should only have to be done once)**
+```
+./gradlew build (macOS/Linux/Anything really)
+gradlew.bat build (Windows)
+```
+
+Make sure IntelliJ is set to use JDK 15 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
+
+Production builds can then be ran by running
+```
+java -jar build/libs/<exe name>.jar
+```
+
+##### Development
+
+To run in development mode with hot reloading and everything nice:
+
+```
+./gradlew bootRun # Run the spring server
+
+# In a seperate terminal:
+cd frontend && yarn start # Run the frontend development
+```
+
+The frontend can then be accessed under `localhost:3000`
+
+--- 
