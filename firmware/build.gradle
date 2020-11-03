@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.3.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'org.siouan.frontend-jdk11' version '4.0.1'
 	id 'java'
 }
 
@@ -23,3 +24,23 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+frontend {
+	nodeDistributionProvided = false
+	nodeVersion = '14.15.0'
+	nodeInstallDirectory = file("${projectDir}/node")
+
+	installScript = 'install'
+	assembleScript = 'run build'
+	cleanScript = 'run clean'
+
+	packageJsonDirectory = file("${projectDir}/frontend")
+	verboseModeEnabled = false
+}
+
+task copyWebApp(type: Copy) {
+	from 'frontend/build'
+	into 'build/resources/main/static/.'
+}
+
+bootJar.dependsOn(copyWebApp)
