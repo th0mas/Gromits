@@ -5,6 +5,8 @@ Interactive video link between two Gromit sculptures.
 
 `Team 40`
 
+[![spe-uob](https://circleci.com/gh/spe-uob/GromitsRepo.svg?style=svg)](https://circleci.com/gh/spe-uob/GromitsRepo.svg)
+
 </div>
 
 ----
