@@ -35,6 +35,7 @@ other Gromits and broadcast a video feed from the Gromits own webcam.
 
 * JDK 15+
 * Node 14.x (Only required for frontend development)
+* Yarn (Only for frontend)
 
 #### Getting started
 
@@ -48,6 +49,12 @@ Pull dependencies and build
 ```
 ./gradlew build (macOS/Linux/Anything really)
 gradlew.bat build (Windows)
+```
+
+To build the frontend (If you're doing frontend development)
+```
+cd frontend
+yarn install
 ```
 
 Make sure IntelliJ is set to use JDK 15 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
