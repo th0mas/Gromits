@@ -1,1 +1,9 @@
-@import "~milligram"
+@import "~milligram";
+
+html, body {
+  height: 100%;
+}
+
+div#root {
+  height: 100%;
+}
