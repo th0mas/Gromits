@@ -1,8 +1,11 @@
 import React, {useEffect, useRef} from 'react'
 import {useStream} from "../../lib/stream"
+import InfoBox from "../InfoBox";
+
+import styles from './Stream.module.scss'
 
 const Stream = () => {
-  let stream = useStream()
+  let [stream, error] = useStream()
   let videoEl = useRef(null)
 
   useEffect(() => {
@@ -13,15 +16,17 @@ const Stream = () => {
     let video = videoEl.current
     console.log(video)
     video.srcObject = stream
-    video.play()
 
   }, [videoEl, stream])
 
-  if (stream) {
-    return <video autoPlay ref={videoEl} />
-  } else {
-    return <p>Could not obtain video</p>
-  }
+  return <>
+    <div className={styles.container}>
+      { !stream || <video autoPlay ref={videoEl} /> }
+
+
+      { !error || <InfoBox info={error} />}
+    </div>
+    </>
 }
 
 export default Stream

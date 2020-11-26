@@ -16,12 +16,13 @@ const useStream = (videoEl) => {
   // Initialize video state
   let [videoSrc, setVideoSrc] = useState(null)
   let [stream, setStream] = useState(null)
+  let [error, setError] = useState(null)
 
   if (!videoSrc) {
     console.log("Attempting to get video")
     navigator.mediaDevices.getUserMedia({
       video: true
-    }).then(setVideoSrc).catch(console.log)
+    }).then(setVideoSrc).catch((err) => setError(`Failed to initialize webcam.\n Error: ${err}`))
   }
 
   useEffect(() => {
@@ -34,10 +35,11 @@ const useStream = (videoEl) => {
       setStream(p2pStream)
 
       p2pStream.open()
+      setError("Can't open stream")
     }
   }, [videoSrc]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return videoSrc
+  return [videoSrc, error]
 }
 
 export {useStream, P2PStream}
