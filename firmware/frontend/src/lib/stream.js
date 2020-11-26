@@ -1,10 +1,12 @@
 // Skeleton stream implementation
 
 import {useState, useEffect} from "react";
+import SockJS from 'sockjs-client'
 
 class P2PStream {
   constructor(stream) {
     this.stream = stream
+    this.socket = new SockJS("http://localhost:8080/signaller")
   }
 
   open() {
