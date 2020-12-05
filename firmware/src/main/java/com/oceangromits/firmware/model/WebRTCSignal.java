@@ -8,7 +8,9 @@ public class WebRTCSignal {
     public enum SignalType {
         VIDEO_OFFER,
         VIDEO_ANSWER,
-        NEW_ICE_CANDIDATE
+        NEW_ICE_CANDIDATE,
+        DEVICE_LEAVE,
+        DEVICE_JOIN
     }
 
     public SignalType getType() {
