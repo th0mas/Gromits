@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client'
 import {Stomp} from "@stomp/stompjs";
 
 const deviceID = process.env.REACT_APP_DEVICE_ID
+const signalServerPath = process.env.NODE_ENV === "production" ? "https://gromit.tomh.uk" : "http://localhost:8080"
 console.log(process.env)
 
 class P2PStream {
@@ -27,7 +28,7 @@ class P2PStream {
       return
     }
 
-    this.socket = new SockJS("http://localhost:8080/signaller")
+    this.socket = new SockJS(signalServerPath)
 
     this.setVideoSrc = setVideoSrc
 
