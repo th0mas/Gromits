@@ -1,8 +1,10 @@
 package com.oceangromits.firmware.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class WebRTCSignal {
     private SignalType type;
-    private String content;
+    private JsonNode content;
     private String sender;
 
     public enum SignalType {
@@ -21,11 +23,11 @@ public class WebRTCSignal {
         this.type = type;
     }
 
-    public String getContent() {
+    public JsonNode getContent() {
         return this.content;
     }
 
-    public void setContent(String content) {
+    public void setContent(JsonNode content) {
         this.content = content;
     }
 
