@@ -8,14 +8,18 @@ const deviceID = process.env.REACT_APP_DEVICE_ID
 console.log(process.env)
 
 class P2PStream {
+
   stompClient;
   setError;
+  setVideoSrc;
+  peerConnection;
+
   constructor(stream, errorSetter) {
     this.stream = stream
     this.setError = errorSetter
   }
 
-  open() {
+  open(setVideoSrc) {
     console.log("attempting to open stream")
 
     if (!deviceID) {
@@ -24,6 +28,8 @@ class P2PStream {
     }
 
     this.socket = new SockJS("http://localhost:8080/signaller")
+
+    this.setVideoSrc = setVideoSrc
 
     this.stompClient = Stomp.over(this.socket)
 
@@ -55,14 +61,16 @@ class P2PStream {
   }
 
   handleSignal(signal) {
-    let content = JSON.parse(signal)
+    let content = JSON.parse(signal.body)
 
     if (content.sender === deviceID) {
+      console.log("Ignoring message from myself")
       return
     }
-
-    switch (signal.type) {
-      case 'DEVICE_JOIN':
+    console.log("Analysing message")
+    switch (content.type) {
+      case "DEVICE_JOIN":
+        this.startStream(content)
         break
       case 'DEVICE_LEAVE':
         break
@@ -72,9 +80,64 @@ class P2PStream {
         break
       case 'NEW_ICE_CANDIDATE':
         break
+      default:
+        console.log("Unknown message")
     }
   }
 
+  startStream(signal) {
+    console.log("Device joined - attempting to start video connection")
+    this.createConnection()
+
+    navigator.mediaDevices.getUserMedia({
+      video: true
+    }).then(
+      (videoStream) => videoStream
+      .getVideoTracks()
+      .forEach(track => this.peerConnection.addTrack(track, videoStream))
+    ).catch(
+      this.setError("Error sending video to stream")
+    )
+
+  }
+
+  createConnection() {
+    this.peerConnection = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: "stun:stun2.l.google.com:19302" // Sorry Google - we should use servers we actually own
+        },
+        {
+          urls: "stun:stun.l.google.com:19302"
+        }
+      ]
+    })
+
+    this.peerConnection.onicecandidate = (e) => this.handleICECandidateEvent(e)
+    this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
+    this.peerConnection.onnegotiationneeded = (e) => this.handleNegotiationNeeded(e)
+  }
+
+
+  handleICECandidateEvent(e) {
+
+  }
+
+  handleTrackEvent(e) {
+
+  }
+
+  handleNegotiationNeeded(e) {
+    this.peerConnection.createOffer().then(offer => {
+      return this.peerConnection.setLocalDescription(offer)
+    }).then(() => {
+      this.stompClient.send({
+        sender: deviceID,
+        type: 'VIDEO_OFFER',
+        content: this.peerConnection.localDescription
+      })
+      })
+  }
 
 }
 
@@ -100,7 +163,7 @@ const useStream = (videoEl) => {
       let p2pStream = new P2PStream(videoSrc, setError)
       setStream(p2pStream)
 
-      p2pStream.open()
+      p2pStream.open(setVideoSrc)
     }
   }, [videoSrc]) // eslint-disable-line react-hooks/exhaustive-deps
 
