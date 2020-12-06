@@ -28,7 +28,7 @@ class P2PStream {
       return
     }
 
-    this.socket = new SockJS(signalServerPath)
+    this.socket = new SockJS(signalServerPath + "/signaller")
 
     this.setVideoSrc = setVideoSrc
 
