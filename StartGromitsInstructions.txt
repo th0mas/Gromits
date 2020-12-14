@@ -1,0 +1,13 @@
+To Do To Setup Startup:
+Place GROMITS.sh at /usr/local/bin/GROMITS.sh
+Give execution permissions:
+sudo chmod +x /usr/local/bin/GROMITS.sh
+
+Test if Java Application is working with the following commands:
+/usr/local/bin/./GROMITS.sh start
+/usr/local/bin/./GROMITS.sh stop
+/usr/local/bin/./GROMITS.sh restart
+
+Place GROMITS.service at /etc/systemd/system/GROMITS.service
+
+PATH_TO_JAR in GROMITS.sh may need to be changed to match the location of the .jar file.
