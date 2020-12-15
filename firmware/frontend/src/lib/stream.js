@@ -4,7 +4,7 @@ import {useState, useEffect} from "react";
 import SockJS from 'sockjs-client'
 import {Stomp} from "@stomp/stompjs";
 
-const deviceID = process.env.REACT_APP_DEVICE_ID
+const deviceID = Math.random().toString(36).substring(7) // Hack for testing
 const signalServerPath = process.env.NODE_ENV === "production" ? "https://gromit.tomh.uk" : "http://localhost:8080"
 console.log(process.env)
 
@@ -203,9 +203,10 @@ const useStream = (videoEl) => {
 
   if (!videoSrc) {
     console.log("Attempting to get video")
-    navigator.mediaDevices.getUserMedia({
-      video: true
-    }).then(setVideoSrc).catch((err) => setError(`Failed to initialize webcam.\n Error: ${err}`))
+    navigator.mediaDevices && // Check these exist first
+      navigator.mediaDevices.getUserMedia({
+        video: true
+      }).then(setVideoSrc).catch((err) => setError(`Failed to initialize webcam.\n Error: ${err}`))
   }
 
   useEffect(() => {

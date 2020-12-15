@@ -2,9 +2,12 @@
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  node: circleci/node@2.0.2
+
 jobs:
-  build:
+  java:
     docker:
       # specify the version you desire here
       - image: cimg/openjdk:11.0
@@ -41,3 +44,12 @@ jobs:
 
       # run tests!
       - run: gradle test
+  
+workflows:
+  test_all:
+    jobs:
+      - java
+      - node/test:
+          app-dir: 'firmware/frontend'
+          version: 14.15.1
+    
