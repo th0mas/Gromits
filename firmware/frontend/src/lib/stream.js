@@ -171,7 +171,8 @@ class P2PStream {
   }
 
   handleTrackEvent(e) {
-    this.setVideoSrc = e.streams[0]
+    console.log("New track!")
+    this.setVideoSrc(e.streams[0])
   }
 
   handleNegotiationNeeded(e) {
@@ -213,10 +214,12 @@ const useStream = (videoEl) => {
   // Try and fetch user webcam
     console.log("Init stream")
 
-    let p2pStream = new P2PStream(videoSrc, setError)
-    setStream(p2pStream)
+    if (!stream) {
+      let p2pStream = new P2PStream(videoSrc, setError)
+      setStream(p2pStream)
 
-    p2pStream.open(setVideoSrc)
+      p2pStream.open(setVideoSrc)
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return [videoSrc, error]
