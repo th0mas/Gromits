@@ -16,5 +16,5 @@ Microsoft Stream Screencast URL: n/a
 
 ## Notes
 
-1 - System is non-interactive so only has one named user story for MVP
-2 - Client was unavailiable for demonstration until Friday 18th
+1. System is non-interactive so only has one named user story for MVP
+2. Client was unavailiable for demonstration until Friday 18th
