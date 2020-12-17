@@ -51,7 +51,7 @@ class Signaller {
 
   // Allow other classes to register callbacks
   registerRTCCallback(callback) {
-    this.callbacks.append(callback)
+    this.callbacks.push(callback)
   }
 
   // Remove our callbacks - perf optimisation when using Hooks
@@ -90,6 +90,10 @@ class Signaller {
     }
 
     this.callbacks.forEach((callback) => callback(content))
+  }
+
+  send(obj) {
+    this.stompClient.send("/webrtc/webrtc.signal", {}, JSON.stringify(obj))
   }
 
 

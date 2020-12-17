@@ -1,74 +1,39 @@
 // Skeleton stream implementation
 
-import {useState, useEffect, useContext} from "react";
-import SockJS from 'sockjs-client'
-import {Stomp} from "@stomp/stompjs";
-import {SignalContext} from "../contexts";
+import {useState, useEffect, useContext} from "react"
+import {SignalContext} from "../contexts"
 
 const deviceID = Math.random().toString(36).substring(7) // Hack for testing
 
-console.log(process.env)
-
 class P2PStream {
 
-  stompClient;
+  signaller;
   setError;
   setVideoSrc;
   peerConnection;
 
-  constructor(stream, errorSetter) {
-    this.stream = stream
+  constructor(signaller, errorSetter) {
+    this.signaller = signaller
     this.setError = errorSetter
   }
 
   open(setVideoSrc) {
-    console.log("attempting to open stream")
+    this.signaller.registerRTCCallback((content) => this.handleSignal(content))
 
     if (!deviceID) {
       this.setError("No Device ID set!")
       return
     }
 
-    this.socket = new SockJS(signalServerPath + "/signaller")
-
     this.setVideoSrc = setVideoSrc
 
-    this.stompClient = Stomp.over(this.socket)
-
-    this.stompClient.connect("", "",
-      () => this.handleConnect(),
-      (err) => this.handleError(err),
-      () => this.handleClose())
   }
 
-  // handle connecting and subscribing to topics for signalling
-  handleConnect() {
-    this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
-
-    this.stompClient.send("/webrtc/webrtc.join",
-      {},
-      JSON.stringify({sender: deviceID, type: 'DEVICE_JOIN'})
-      )
-  }
-
-  handleClose() {
-    console.log("Remote connection unexpectedly terminated")
-    this.setError("Remote connection not availiable - is the other Gromit turned on?")
-  }
-
-  // handle any possible errors
   handleError(err) {
-    console.log("Error handled?")
-    this.setError("An error occurred with the stream: " +  err)
+    this.setError(err)
   }
 
-  handleSignal(signal) {
-    let content = JSON.parse(signal.body)
-
-    if (content.sender === deviceID) {
-      console.log("Ignoring message from myself")
-      return
-    }
+  handleSignal(content) {
     console.log("Analysing message")
     switch (content.type) {
       case "DEVICE_JOIN":
@@ -90,7 +55,7 @@ class P2PStream {
     }
   }
 
-  startStream(signal) {
+  startStream() {
     console.log("Device joined - attempting to start video connection")
     this.createConnection()
 
@@ -176,7 +141,7 @@ class P2PStream {
     this.setVideoSrc(e.streams[0])
   }
 
-  handleNegotiationNeeded(e) {
+  handleNegotiationNeeded() {
     this.peerConnection.createOffer().then(offer => {
       return this.peerConnection.setLocalDescription(offer)
     }).then(() => {
@@ -190,40 +155,11 @@ class P2PStream {
     })
   }
 
-  send(obj) {
-    this.stompClient.send("/webrtc/webrtc.signal", {}, JSON.stringify(obj))
+  send(content) {
+    this.signaller.send(content)
   }
 
 
-}
-
-const useStream = (videoEl) => {
-  // Initialize video state
-  let [videoSrc, setVideoSrc] = useState(null)
-  let [stream, setStream] = useState(null)
-  let [error, setError] = useState(null)
-
-  if (!videoSrc) {
-    console.log("Attempting to get video")
-    navigator.mediaDevices && // Check these exist first
-      navigator.mediaDevices.getUserMedia({
-        video: true
-      }).then(setVideoSrc).catch((err) => setError(`Failed to initialize webcam.\n Error: ${err}`))
-  }
-
-  useEffect(() => {
-  // Try and fetch user webcam
-    console.log("Init stream")
-
-    if (!stream) {
-      let p2pStream = new P2PStream(videoSrc, setError)
-      setStream(p2pStream)
-
-      p2pStream.open(setVideoSrc)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  return [videoSrc, error]
 }
 
 const useVideoStream = () => {
@@ -240,4 +176,4 @@ const useVideoStream = () => {
   return [videoSrc, err, sigErr]
 }
 
-export {useStream, useVideoStream, P2PStream}
+export {useVideoStream, P2PStream}
