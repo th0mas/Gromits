@@ -1,11 +1,12 @@
 // Skeleton stream implementation
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useContext} from "react";
 import SockJS from 'sockjs-client'
 import {Stomp} from "@stomp/stompjs";
+import {SignalContext} from "../contexts";
 
 const deviceID = Math.random().toString(36).substring(7) // Hack for testing
-const signalServerPath = process.env.NODE_ENV === "production" ? "https://gromit.tomh.uk" : "http://localhost:8080"
+
 console.log(process.env)
 
 class P2PStream {
@@ -225,4 +226,18 @@ const useStream = (videoEl) => {
   return [videoSrc, error]
 }
 
-export {useStream, P2PStream}
+const useVideoStream = () => {
+  let [videoSrc, setVideoSrc] = useState(null)
+  let [err, setErr] = useState(null)
+  let {signaller, sigErr} = useContext(SignalContext)
+
+  useEffect(() => {
+    let p2pStream = new P2PStream(signaller, setErr)
+
+    p2pStream.open(setVideoSrc)
+  }, [signaller])
+
+  return [videoSrc, err, sigErr]
+}
+
+export {useStream, useVideoStream, P2PStream}

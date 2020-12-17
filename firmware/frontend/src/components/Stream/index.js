@@ -1,32 +1,30 @@
 import React, {useEffect, useRef} from 'react'
-import {useStream} from "../../lib/stream"
 import InfoBox from "../InfoBox";
 
 import styles from './Stream.module.scss'
+import {useStream} from "../../lib/stream";
 
 const Stream = () => {
-  let [stream, error] = useStream()
   let videoEl = useRef(null)
+  let [stream, streamErr] = useStream()
 
   useEffect(() => {
-    if (!videoEl.current) {
+    let video = videoEl.current
+
+    if (video) { // Only run this effect if the ref is assigned
       return
     }
 
-    let video = videoEl.current
-    console.log(video)
     video.srcObject = stream
+  })
 
-  }, [videoEl, stream])
+  return <div className={styles.container}>
+    {/* Render our video once we have a video stream */}
+    { !stream || <video autoPlay ref={videoEl} />}
 
-  return <>
-    <div className={styles.container}>
-      { !stream || <video autoPlay ref={videoEl} /> }
-
-
-      { !error || <InfoBox info={error} />}
-    </div>
-    </>
+    {/* If we have any errors, render them here*/}
+    { !streamErr || <InfoBox info={streamErr} />}
+  </div>
 }
 
 export default Stream
