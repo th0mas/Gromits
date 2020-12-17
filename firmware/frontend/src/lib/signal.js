@@ -84,8 +84,8 @@ class Signaller {
   //    out now
   handleSignal(signal) {
     let content = JSON.parse(signal.body)
-
     if (content.sender === deviceId) {
+      console.log("discarding own message")
       return
     }
 
@@ -93,7 +93,8 @@ class Signaller {
   }
 
   send(obj) {
-    this.stompClient.send("/webrtc/webrtc.signal", {}, JSON.stringify(obj))
+    let payload = {...obj, sender: deviceId}
+    this.stompClient.send("/webrtc/webrtc.signal", {}, JSON.stringify(payload))
   }
 
 

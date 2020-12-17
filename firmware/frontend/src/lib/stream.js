@@ -3,8 +3,6 @@
 import {useState, useEffect, useContext} from "react"
 import {SignalContext} from "../contexts"
 
-const deviceID = Math.random().toString(36).substring(7) // Hack for testing
-
 class P2PStream {
 
   signaller;
@@ -20,11 +18,6 @@ class P2PStream {
   open(setVideoSrc) {
     this.signaller.registerRTCCallback((content) => this.handleSignal(content))
 
-    if (!deviceID) {
-      this.setError("No Device ID set!")
-      return
-    }
-
     this.setVideoSrc = setVideoSrc
 
   }
@@ -34,7 +27,6 @@ class P2PStream {
   }
 
   handleSignal(content) {
-    console.log("Analysing message")
     switch (content.type) {
       case "DEVICE_JOIN":
         this.startStream(content)
@@ -86,7 +78,6 @@ class P2PStream {
       return this.peerConnection.setLocalDescription(ans)
     }).then(() => {
       this.send({
-        sender: deviceID,
         type: 'VIDEO_ANSWER',
         content: this.peerConnection.localDescription
       })
@@ -129,7 +120,6 @@ class P2PStream {
   handleICECandidateEvent(e) {
     if (e.candidate) {
       this.send({
-        sender: deviceID,
         type: 'NEW_ICE_CANDIDATE',
         content: e.candidate
       })
@@ -146,7 +136,6 @@ class P2PStream {
       return this.peerConnection.setLocalDescription(offer)
     }).then(() => {
       this.send({
-        sender: deviceID,
         type: 'VIDEO_OFFER',
         content: this.peerConnection.localDescription
       })
