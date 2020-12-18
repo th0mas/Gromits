@@ -32,6 +32,7 @@ class P2PStream {
         this.startStream(content)
         break
       case 'DEVICE_LEAVE':
+        this.handleDeviceLeaveSignaller()
         break
       case 'VIDEO_OFFER':
         this.handleVideoOffer(content)
@@ -89,9 +90,10 @@ class P2PStream {
 
   handleNewICECandidate(signal) {
     let candidate = new RTCIceCandidate(signal.content)
-    console.log(candidate)
 
-    this.peerConnection.addIceCandidate(candidate)
+    if (this.peerConnection) {
+      this.peerConnection.addIceCandidate(candidate)
+    }
   }
 
   createConnection() {
@@ -142,6 +144,14 @@ class P2PStream {
       }).catch((err) => {
         this.handleError(err)
     })
+  }
+
+  // We should do this with WebRTC callbacks in future but this
+  // is an effective workaround.
+  handleDeviceLeaveSignaller() {
+    console.log("Device left :(")
+    this.setVideoSrc(null)
+    this.setError("Lost connection to other Gromit")
   }
 
   send(content) {
