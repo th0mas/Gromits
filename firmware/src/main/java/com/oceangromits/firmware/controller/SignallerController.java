@@ -26,9 +26,16 @@ public class SignallerController {
     @SendTo("/signal/public")
     public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
         String sender = signal.getSender();
+
+        if (WebRTCSignal.numConnected >= 2) {
+            logger.info("Device " + sender + " attempted to connect to full instance");
+            return null;
+        }
+        WebRTCSignal.numConnected += 1;
+
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("clientId", sender);
 
-        logger.info("Device connected : " + sender);
+        logger.info("Device connected : " + sender + " currently " + WebRTCSignal.numConnected + " clients");
 
         return signal;
     }
