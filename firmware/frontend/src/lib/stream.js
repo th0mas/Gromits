@@ -18,7 +18,7 @@ class P2PStream {
   open(setVideoSrc) {
     this.signaller.registerRTCCallback((content) => this.handleSignal(content))
 
-    this.setVideoSrc = setVideoSrc
+    this.setVideoSrc = setVideoSrc // set video src function
 
   }
 
@@ -111,6 +111,8 @@ class P2PStream {
     this.peerConnection.onicecandidate = (e) => this.handleICECandidateEvent(e)
     this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
     this.peerConnection.onnegotiationneeded = (e) => this.handleNegotiationNeeded(e)
+
+    this.setError(null)
   }
 
   handleVideoAnswer(signal) {
@@ -163,7 +165,7 @@ class P2PStream {
 
 const useVideoStream = () => {
   let [videoSrc, setVideoSrc] = useState(null)
-  let [err, setErr] = useState(null)
+  let [err, setErr] = useState("Other Gromit not connected")
   let {signaller, sigErr} = useContext(SignalContext)
 
   useEffect(() => {
