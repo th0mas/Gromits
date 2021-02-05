@@ -33,7 +33,7 @@ other Gromits and broadcast a video feed from the Gromits own webcam.
 
 ### Dependencies
 
-* JDK 15+
+* JDK 11+
 * Node 14.x (Only required for frontend development)
 * Yarn (Only for frontend)
 
@@ -57,7 +57,7 @@ cd frontend
 yarn install
 ```
 
-Make sure IntelliJ is set to use JDK 15 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
+Make sure IntelliJ is set to use JDK 11 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
 
 Production builds can then be ran by running
 ```
