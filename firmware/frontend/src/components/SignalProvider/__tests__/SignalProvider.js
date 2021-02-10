@@ -1,6 +1,5 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import ReactTestUtils from 'react-dom/test-utils'
 import SigProv from '../index'
 import {SignalContext} from '../../../contexts'
 
@@ -11,13 +10,14 @@ it("Initializes providers correctly", () => {
     expect(screen.getByText("Test")).toBeInTheDocument()
 })
 
-it("Passes values to children", () => {
-    TestRender.create(
-        <SigProv url={"val"}>
+it("Context initializes a signaller", () => {
+    render(
+        <SigProv url={"test"}>
             <SignalContext.Consumer>
-                {(value) => <p>{value}</p>}
+                {(value) => { // Deep check to make sure socket gets init'd correctly
+                    expect(value.signaller.socket.url).toEqual('http://localhost/test')
+                }}
             </SignalContext.Consumer>
         </SigProv>
     )
-    expect(screen.getByText("fail")).toBeInTheDocument()
 })
