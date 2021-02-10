@@ -3,8 +3,6 @@ package com.oceangromits.firmware.model;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class WebRTCSignal {
-    public static int numConnected = 0;
-
     private SignalType type;
     private JsonNode content;
     private String sender;

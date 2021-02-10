@@ -17,14 +17,14 @@ import java.util.Objects;
 public class SignallerEventListener {
     public static final Logger logger = LoggerFactory.getLogger(SignallerEventListener.class);
 
-    private int numConnected = 0;
-
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         // Stub method for later?
+
+
     }
 
     @EventListener
@@ -37,8 +37,9 @@ public class SignallerEventListener {
 
         if (deviceId == null) return;
 
-        WebRTCSignal.numConnected -= 1;
-        logger.info("Device disconnected : " + deviceId + ", Currently " + numConnected + " client's connected");
+        SignallerController.clients.remove(new String(deviceId));
+
+        logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
 
         WebRTCSignal signal = new WebRTCSignal();
         signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
