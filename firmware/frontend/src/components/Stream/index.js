@@ -8,7 +8,7 @@ import ConnectionInfoBox from "../ConnectionInfoBox";
 const Stream = () => {
   let videoEl = useRef(null)
   let [stream, streamErr, sigErr] = useVideoStream()
-  //let connectStatus = "hello"
+  let connectStatus = "hello world"
 
   useEffect(() => {
     let video = videoEl.current
@@ -28,7 +28,7 @@ const Stream = () => {
 
   return <div className={styles.container}>
     <video autoPlay ref={videoEl} />
-    <ConnectionInfoBox info = {streamErr}/>
+    <ConnectionInfoBox info = {connectStatus}/>
 
     {/* If we have any errors, render them here*/}
     { streamErr && <InfoBox info={streamErr} />}
