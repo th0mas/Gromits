@@ -14,6 +14,7 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
+    console.log(navigator.mediaDevices)
     console.log(stream)
     stream
       ? video.srcObject = stream
