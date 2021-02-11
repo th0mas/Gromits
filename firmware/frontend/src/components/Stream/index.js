@@ -3,10 +3,12 @@ import InfoBox from "../InfoBox";
 
 import styles from './Stream.module.scss'
 import {useVideoStream} from "../../lib/stream";
+import ConnectionInfoBox from "../ConnectionInfoBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
   let [stream, streamErr, sigErr] = useVideoStream()
+  let connectStatus = null
 
   useEffect(() => {
     let video = videoEl.current
@@ -26,6 +28,7 @@ const Stream = () => {
 
   return <div className={styles.container}>
     <video autoPlay ref={videoEl} />
+    { <ConnectionInfoBox info = {connectStatus}/>}
 
     {/* If we have any errors, render them here*/}
     { streamErr && <InfoBox info={streamErr} />}
