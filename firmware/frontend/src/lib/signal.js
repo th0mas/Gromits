@@ -30,7 +30,6 @@ class Signaller {
   constructor(url, errCallback) {
     this.callbacks = []
     this.errCallback = errCallback
-
     this.socket = new SockJS(url)
     this.stompClient = Stomp.over(this.socket)
   }
