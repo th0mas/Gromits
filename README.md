@@ -78,3 +78,15 @@ cd frontend && yarn start # Run the frontend development
 The frontend can then be accessed under `localhost:3000`
 
 --- 
+
+### Building for production
+
+When building for production, several variables need to be set to allow the Gromits to securely access
+each other. 
+
+```shell
+export REACT_APP_SIGNAL_URL=10.10.10.10 // Remote gromit ip
+export REACT_APP_USERNAME="gromit" // Username for signalling server
+export REACT_APP_PASSWORD="hunter2" // Password for the signalling server
+./gradlew build // Build and compile the firmware into a single .jar file
+```

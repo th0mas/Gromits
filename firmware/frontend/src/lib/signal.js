@@ -17,6 +17,9 @@ export const VIDEO_OFFER = 'VIDEO_OFFER'
 export const VIDEO_ANSWER = 'VIDEO_ANSWER'
 export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
 
+const username = process.env.REACT_APP_USERNAME || "gromit"
+const password = process.env.REACT_APP_PASSWORD || "test_pass"
+
 class Signaller {
   // Define stubs for vars to be set later.
   stompClient;
@@ -35,7 +38,7 @@ class Signaller {
   }
 
   connect() {
-    this.stompClient.connect("", "", // Currently use blank user + pass
+    this.stompClient.connect(username, password, // Currently use blank user + pass
       () => this.handleConnect(),
       (err) => this.handle(err),
       () => this.handleClose()
