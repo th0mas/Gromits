@@ -37,7 +37,7 @@ public class SignallerEventListener {
 
         if (deviceId == null) return;
 
-        SignallerController.clients.remove(new String(deviceId));
+        SignallerController.clients.remove(deviceId);
 
         logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
 
