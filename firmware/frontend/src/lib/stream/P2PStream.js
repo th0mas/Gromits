@@ -1,8 +1,5 @@
 // Skeleton stream implementation
 
-import {useState, useEffect, useContext} from "react"
-import {SignalContext} from "../contexts"
-
 class P2PStream {
 
   signaller;
@@ -10,16 +7,27 @@ class P2PStream {
   setVideoSrc;
   peerConnection;
 
+  // Set our signaller object and our error setter callback
   constructor(signaller, errorSetter) {
     this.signaller = signaller
     this.setError = errorSetter
   }
 
+  // Attempt to open an RTC connection by listening for connection requests.
+  // Think there's a race condition here as our signaller will initialize before
+  // any callbacks are registered therefore missing the first VIDEO_OFFER message
   open(setVideoSrc) {
+    // Register our own callback with the signaller
     this.signaller.registerRTCCallback((content) => this.handleSignal(content))
 
     this.setVideoSrc = setVideoSrc // set video src function
 
+  }
+
+  // Set a callback that returns the connection state whenever it changes
+  setConnectionStatusCallback(callback) {
+    // Because the WebRTC api is awful, we'll add a wrapper that returns the value we want.
+    this.peerConnection.onconnectionstatechange = (_e) => callback(this.peerConnection.connectionState)
   }
 
   handleError(err) {
@@ -160,21 +168,6 @@ class P2PStream {
     this.signaller.send(content)
   }
 
-
 }
 
-const useVideoStream = () => {
-  let [videoSrc, setVideoSrc] = useState(null)
-  let [err, setErr] = useState("Other Gromit not connected")
-  let {signaller, sigErr} = useContext(SignalContext)
-
-  useEffect(() => {
-    let p2pStream = new P2PStream(signaller, setErr)
-
-    p2pStream.open(setVideoSrc)
-  }, [signaller])
-
-  return [videoSrc, err, sigErr]
-}
-
-export {useVideoStream, P2PStream}
+export default P2PStream

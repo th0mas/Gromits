@@ -6,7 +6,7 @@ import {useVideoStream} from "../../lib/stream";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let [stream, streamErr, sigErr] = useVideoStream()
+  let [{videoSrc, streamState, streamErr}, sigErr] = useVideoStream()
 
   useEffect(() => {
     let video = videoEl.current
@@ -15,15 +15,15 @@ const Stream = () => {
       return
     }
     console.log(navigator.mediaDevices)
-    console.log(stream)
-    stream
-      ? video.srcObject = stream
+    console.log(videoSrc)
+    videoSrc
+      ? video.srcObject = videoSrc
       : navigator.mediaDevices.getUserMedia({video: true})
         .then((stream) => {
           video.srcObject = stream
         })
 
-  }, [stream])
+  }, [videoSrc])
 
   return <div className={styles.container}>
     <video autoPlay ref={videoEl} />
