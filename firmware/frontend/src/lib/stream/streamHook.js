@@ -16,7 +16,7 @@ const initialState = {
 
 const useVideoStream = () => {
   let [state, dispatch] = useReducer(reducer, initialState)
-  let {signaller, sigErr} = useContext(SignalContext)
+  let {signaller} = useContext(SignalContext)
 
   useEffect(() => {
     let p2pStream = new P2PStream(signaller, (err) => dispatch({
@@ -35,7 +35,7 @@ const useVideoStream = () => {
     }))
   }, [signaller])
 
-  return [state, sigErr] // TODO: Refactor sigErr into state
+  return state // TODO: Refactor sigErr into state
 }
 
 export default useVideoStream

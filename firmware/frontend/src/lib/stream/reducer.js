@@ -12,7 +12,7 @@ Actions should be of shape
 // take actions and use them to mutate our state
 
 const reducer = (state, action) => {
-  console.log(`${action.type}`)
+  console.log(`${action.type}: ${action.payload}`)
   switch (action.type) {
     case VIDEO_ERR:
       return {...state, streamErr: action.payload}

@@ -1,12 +1,14 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useContext} from 'react'
 import InfoBox from "../InfoBox";
 
 import styles from './Stream.module.scss'
 import {useVideoStream} from "../../lib/stream";
+import {SignalContext} from "../../contexts";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let [{videoSrc, streamState, streamErr}, sigErr] = useVideoStream()
+  let {videoSrc, streamState, streamErr} = useVideoStream()
+  let {sigErr} = useContext(SignalContext)
 
   useEffect(() => {
     let video = videoEl.current

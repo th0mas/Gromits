@@ -22,6 +22,8 @@ class P2PStream {
 
     this.setVideoSrc = setVideoSrc // set video src function
 
+    this.createConnection()
+
   }
 
   // Set a callback that returns the connection state whenever it changes
@@ -58,7 +60,7 @@ class P2PStream {
 
   startStream() {
     console.log("Device joined - attempting to start video connection")
-    this.createConnection()
+    // this.createConnection()
 
     navigator.mediaDevices.getUserMedia({
       video: true
@@ -70,8 +72,7 @@ class P2PStream {
   }
 
   handleVideoOffer(signal) {
-    this.createConnection()
-
+    this.setError(null)
     let desc = new RTCSessionDescription(signal.content)
 
     // Haha oh no spaghetti promises
@@ -120,7 +121,7 @@ class P2PStream {
     this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
     this.peerConnection.onnegotiationneeded = (e) => this.handleNegotiationNeeded(e)
 
-    this.setError(null)
+    // this.setError(null)
   }
 
   handleVideoAnswer(signal) {
