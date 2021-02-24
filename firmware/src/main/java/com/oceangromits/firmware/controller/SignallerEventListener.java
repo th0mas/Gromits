@@ -24,14 +24,22 @@ public class SignallerEventListener {
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         // Stub method for later?
 
+
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+
+
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String deviceId = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("clientId");
-        logger.info("Device disconnected : " + deviceId);
+
+        if (deviceId == null) return;
+
+        SignallerController.clients.remove(deviceId);
+
+        logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
 
         WebRTCSignal signal = new WebRTCSignal();
         signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);

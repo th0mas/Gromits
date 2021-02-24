@@ -1,8 +1,5 @@
 // Skeleton stream implementation
 
-import {useState, useEffect, useContext} from "react"
-import {SignalContext} from "../contexts"
-
 class P2PStream {
 
   signaller;
@@ -10,16 +7,29 @@ class P2PStream {
   setVideoSrc;
   peerConnection;
 
+  // Set our signaller object and our error setter callback
   constructor(signaller, errorSetter) {
     this.signaller = signaller
     this.setError = errorSetter
   }
 
+  // Attempt to open an RTC connection by listening for connection requests.
+  // Think there's a race condition here as our signaller will initialize before
+  // any callbacks are registered therefore missing the first VIDEO_OFFER message
   open(setVideoSrc) {
+    // Register our own callback with the signaller
     this.signaller.registerRTCCallback((content) => this.handleSignal(content))
 
-    this.setVideoSrc = setVideoSrc
+    this.setVideoSrc = setVideoSrc // set video src function
 
+    this.createConnection()
+
+  }
+
+  // Set a callback that returns the connection state whenever it changes
+  setConnectionStatusCallback(callback) {
+    // Because the WebRTC api is awful, we'll add a wrapper that returns the value we want.
+    this.peerConnection.onconnectionstatechange = (_e) => callback(this.peerConnection.connectionState)
   }
 
   handleError(err) {
@@ -50,7 +60,7 @@ class P2PStream {
 
   startStream() {
     console.log("Device joined - attempting to start video connection")
-    this.createConnection()
+    // this.createConnection()
 
     navigator.mediaDevices.getUserMedia({
       video: true
@@ -62,8 +72,7 @@ class P2PStream {
   }
 
   handleVideoOffer(signal) {
-    this.createConnection()
-
+    this.setError(null)
     let desc = new RTCSessionDescription(signal.content)
 
     // Haha oh no spaghetti promises
@@ -111,6 +120,8 @@ class P2PStream {
     this.peerConnection.onicecandidate = (e) => this.handleICECandidateEvent(e)
     this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
     this.peerConnection.onnegotiationneeded = (e) => this.handleNegotiationNeeded(e)
+
+    // this.setError(null)
   }
 
   handleVideoAnswer(signal) {
@@ -158,21 +169,6 @@ class P2PStream {
     this.signaller.send(content)
   }
 
-
 }
 
-const useVideoStream = () => {
-  let [videoSrc, setVideoSrc] = useState(null)
-  let [err, setErr] = useState(null)
-  let {signaller, sigErr} = useContext(SignalContext)
-
-  useEffect(() => {
-    let p2pStream = new P2PStream(signaller, setErr)
-
-    p2pStream.open(setVideoSrc)
-  }, [signaller])
-
-  return [videoSrc, err, sigErr]
-}
-
-export {useVideoStream, P2PStream}
+export default P2PStream

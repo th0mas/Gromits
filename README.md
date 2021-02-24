@@ -33,7 +33,7 @@ other Gromits and broadcast a video feed from the Gromits own webcam.
 
 ### Dependencies
 
-* JDK 15+
+* JDK 11+
 * Node 14.x (Only required for frontend development)
 * Yarn (Only for frontend)
 
@@ -57,7 +57,7 @@ cd frontend
 yarn install
 ```
 
-Make sure IntelliJ is set to use JDK 15 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
+Make sure IntelliJ is set to use JDK 11 otherwise you'll get some nasty errors. Building outside of IntelliJ for the first time is usually quicker.
 
 Production builds can then be ran by running
 ```
@@ -78,3 +78,15 @@ cd frontend && yarn start # Run the frontend development
 The frontend can then be accessed under `localhost:3000`
 
 --- 
+
+### Building for production
+
+When building for production, several variables need to be set to allow the Gromits to securely access
+each other. 
+
+```shell
+export REACT_APP_SIGNAL_URL=10.10.10.10 # Remote gromit ip
+export REACT_APP_USERNAME="gromit" # Username for signalling server
+export REACT_APP_PASSWORD="hunter2" # Password for the signalling server
+./gradlew build # Build and compile the firmware into a single .jar file
+```

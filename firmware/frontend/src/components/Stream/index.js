@@ -1,14 +1,14 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useContext} from 'react'
 import InfoBox from "../InfoBox";
 
 import styles from './Stream.module.scss'
 import {useVideoStream} from "../../lib/stream";
-import ConnectionInfoBox from "../ConnectionInfoBox";
+import {SignalContext} from "../../contexts";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let [stream, streamErr, sigErr] = useVideoStream()
-  let connectStatus = "hello world"
+  let {videoSrc, streamState, streamErr} = useVideoStream()
+  let {sigErr} = useContext(SignalContext)
 
   useEffect(() => {
     let video = videoEl.current
@@ -16,15 +16,16 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
-    console.log(stream)
-    stream
-      ? video.srcObject = stream
+    console.log(navigator.mediaDevices)
+    console.log(videoSrc)
+    videoSrc
+      ? video.srcObject = videoSrc
       : navigator.mediaDevices.getUserMedia({video: true})
         .then((stream) => {
           video.srcObject = stream
         })
 
-  }, [stream])
+  }, [videoSrc])
 
   return <div className={styles.container}>
     <video autoPlay ref={videoEl} />

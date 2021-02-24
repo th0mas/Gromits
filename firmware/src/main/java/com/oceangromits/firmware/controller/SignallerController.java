@@ -9,10 +9,12 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Controller
 public class SignallerController {
+    public static ArrayList<String> clients = new ArrayList<String>();
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
@@ -26,9 +28,19 @@ public class SignallerController {
     @SendTo("/signal/public")
     public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
         String sender = signal.getSender();
-        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("clientId", sender);
 
-        logger.info("Device connected : " + sender);
+        if (clients.size() >= 2) {
+            logger.info(sender + " is trying to connect to full instance");
+            return null;
+        }
+
+        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("clientId", sender);
+        if (sender != null) {
+            clients.add(sender);
+        }
+
+
+        logger.info("Device connected : " + sender + " currently " + clients.size() + " clients");
 
         return signal;
     }

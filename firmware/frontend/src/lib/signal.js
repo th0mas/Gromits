@@ -7,7 +7,7 @@ This file also defines a random device ID and our message type constants.
  */
 
 import SockJS from 'sockjs-client'
-import {Stomp} from "@stomp/stompjs";
+import {Client} from "@stomp/stompjs";
 
 const deviceId = Math.random().toString(36).substring(7)
 
@@ -16,6 +16,9 @@ export const DEVICE_LEAVE = 'DEVICE_LEAVE'
 export const VIDEO_OFFER = 'VIDEO_OFFER'
 export const VIDEO_ANSWER = 'VIDEO_ANSWER'
 export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
+
+const username = process.env.REACT_APP_USERNAME || "gromit"
+const password = process.env.REACT_APP_PASSWORD || "test_pass"
 
 class Signaller {
   // Define stubs for vars to be set later.
@@ -30,17 +33,18 @@ class Signaller {
   constructor(url, errCallback) {
     this.callbacks = []
     this.errCallback = errCallback
-
-    this.socket = new SockJS(url)
-    this.stompClient = Stomp.over(this.socket)
+      
+    this.stompClient = new Client()
+    this.stompClient.webSocketFactory = () => new SockJS(url)
   }
 
   connect() {
-    this.stompClient.connect("", "", // Currently use blank user + pass
-      () => this.handleConnect(),
-      (err) => this.handle(err),
-      () => this.handleClose()
-    )
+    this.stompClient.connectHeaders = {login: username, passcode: password}
+    this.stompClient.onConnect = () => this.handleConnect()
+    this.stompClient.onStompError = err => this.handle(err)
+    this.stompClient.onWebSocketClose = () => this.handleClose()
+
+    this.stompClient.activate()
   }
 
   // Abstract away our error handler a bit
@@ -68,10 +72,10 @@ class Signaller {
       type: DEVICE_JOIN
     }
 
-    this.stompClient.send("/webrtc/webrtc.join",
-      {},
-      JSON.stringify(payload)
-      )
+    this.stompClient.publish({
+      destination: "/webrtc/webrtc.join",
+      body: JSON.stringify(payload)
+    })
   }
 
   // Render a nice error for closed connections
@@ -94,7 +98,11 @@ class Signaller {
 
   send(obj) {
     let payload = {...obj, sender: deviceId}
-    this.stompClient.send("/webrtc/webrtc.signal", {}, JSON.stringify(payload))
+    this.stompClient.publish({
+      destination: "/webrtc/webrtc.signal",
+      body: JSON.stringify(payload)
+    })
+
   }
 
 
