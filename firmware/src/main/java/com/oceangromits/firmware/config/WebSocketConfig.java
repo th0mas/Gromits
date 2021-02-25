@@ -38,8 +38,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/webrtc");
         registry.enableSimpleBroker("/signal");
+        registry.setApplicationDestinationPrefixes("/webrtc");
+
     }
 
 }
@@ -74,6 +75,9 @@ class WebSocketAuthenticatorService {
         //}
 
         // null credentials, we do not pass the password along
+        if(username!="test" && password !="test"){
+            throw new AuthenticationCredentialsNotFoundException("Username/password was incorret.");
+        }
         return new UsernamePasswordAuthenticationToken(
                 username,
                 null,
@@ -130,7 +134,6 @@ class WebSocketAuthenticationSecurityConfig implements WebSocketMessageBrokerCon
 class WebSocketAuthorizationSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
     @Override
     protected void configureInbound(final MessageSecurityMetadataSourceRegistry messages) {
-        // You can customize your authorization mapping here.
         messages.anyMessage().authenticated();
     }
 

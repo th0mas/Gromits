@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.4.RELEASE'
+	id 'org.springframework.boot' version '2.3.4.RELEASE'//2.3.4
 	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 	id 'org.siouan.frontend-jdk11' version '4.0.1'
 	id 'java'
@@ -17,6 +17,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-web'
+	implementation 'org.springframework.security:spring-security-messaging'
+	//implementation group:'org.springframework.boot',name:'spring-boot-starter-security',version:'2.3.4.RELEASE'
 	implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 	//implementation 'org.springframework.boot:spring-security-messaging'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
