@@ -30,6 +30,9 @@ class P2PStream {
   setConnectionStatusCallback(callback) {
     // Because the WebRTC api is awful, we'll add a wrapper that returns the value we want.
     this.peerConnection.onconnectionstatechange = (_e) => callback(this.peerConnection.connectionState)
+
+    // set our initial value
+    callback(this.peerConnection.connectionState)
   }
 
   handleError(err) {
