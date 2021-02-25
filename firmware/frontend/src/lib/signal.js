@@ -36,7 +36,7 @@ class Signaller {
   }
 
   connect() {
-    this.stompClient.connect("", "", // Currently use blank user + pass
+    this.stompClient.connect("test", "test", // Currently use blank user + pass
       () => this.handleConnect(),
       (err) => this.handle(err),
       () => this.handleClose()
