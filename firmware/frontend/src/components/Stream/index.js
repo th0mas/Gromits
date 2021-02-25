@@ -4,6 +4,7 @@ import InfoBox from "../InfoBox";
 import styles from './Stream.module.scss'
 import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
+import ConnectionInfoBox from "../ConnectionInfoBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
@@ -29,7 +30,7 @@ const Stream = () => {
 
   return <div className={styles.container}>
     <video autoPlay ref={videoEl} />
-    <ConnectionInfoBox info = {connectStatus}/>
+    <ConnectionInfoBox info = {streamState}/>
 
     {/* If we have any errors, render them here*/}
     { streamErr && <InfoBox info={streamErr} />}
