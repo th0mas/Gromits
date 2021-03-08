@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.security;
 
 import com.oceangromits.firmware.model.Client;
+import com.oceangromits.firmware.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,7 @@ public class ClientDetails implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final Client client = clientRepository.findByClientName(username);
+        final Client client = clientRepository.findByName(username);
 
         if (Objects.isNull(client)) {
             throw new UsernameNotFoundException("User not found");
@@ -25,7 +26,6 @@ public class ClientDetails implements UserDetailsService {
 
         return User
                 .withUsername(username)
-                .password(client.getPassword())
                 .authorities(client.getRoles())
                 .accountExpired(false)
                 .accountLocked(false)

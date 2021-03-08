@@ -39,7 +39,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // TODO: Persist this as it resets every time
     }
 
     public String createToken(String clientId, List<Role> roles) {

@@ -9,8 +9,9 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeRequests().antMatchers("/").permitAll().and()
-                .authorizeRequests().antMatchers("/h2-console/**").permitAll();
+        httpSecurity
+                .authorizeRequests().antMatchers("/h2-console/**").authenticated().and()
+                .authorizeRequests().antMatchers("/admin").hasRole("ADMIN");
 
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();
