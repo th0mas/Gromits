@@ -1,5 +1,6 @@
 package com.oceangromits.firmware.config;
 
+import com.oceangromits.firmware.security.JwtTokenProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -28,7 +29,7 @@ public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConf
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-//                    Authentication user = accessor.getHeader("token");
+//                    Authentication user = JwtTokenProvideraccessor.getHeader("token");
 //                    accessor.setUser(user);
                 }
                 return message;
