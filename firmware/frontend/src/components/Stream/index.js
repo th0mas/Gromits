@@ -9,7 +9,7 @@ import ConnectionInfoBox from "../ConnectionInfoBox";
 const Stream = () => {
   let videoEl = useRef(null)
   let {videoSrc, streamState, streamErr} = useVideoStream()
-  let {sigErr} = useContext(SignalContext)
+  let {err} = useContext(SignalContext)
 
   useEffect(() => {
     let video = videoEl.current
@@ -34,7 +34,7 @@ const Stream = () => {
 
     {/* If we have any errors, render them here*/}
     { streamErr && <InfoBox info={streamErr} />}
-    { sigErr && <InfoBox info={sigErr} />}
+    { err && <InfoBox info={err} />}
   </div>
 }
 
