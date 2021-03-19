@@ -11,10 +11,11 @@ const getWeatherData = (api, set) => {
 }
 
 const temperature = (data) => {
-    if (data == null || data.main == null) {
-        return 0
-    }
     return data.main.temp
+}
+
+const icon = (data) => {
+    return data.weather[0].icon
 }
  
 const SmartData = ({api}) => {
@@ -28,9 +29,14 @@ const SmartData = ({api}) => {
         return () => clearInterval(interval) 
     }, [])
 
-    return <div className={styles.smartData}>
-        <p>{temperature(weather)}</p>
-        </div>
+    if (weather == null || weather.main == null) {
+        return <div className={styles.smartData}></div>
+    } else {
+        return <div className={styles.smartData}>
+            <p>{temperature(weather)}°C</p>
+            <img src={`http://openweathermap.org/img/wn/${icon(weather)}@2x.png`}/>
+            </div>
+    }
 }
 
 export default SmartData
