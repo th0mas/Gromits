@@ -22,6 +22,7 @@ const SmartData = ({api}) => {
     const [weather, setWeather] = useState(null)
 
     useEffect(() => {
+        getWeatherData(api, setWeather)
         const interval = setInterval(() => {
             getWeatherData(api, setWeather)
             console.log("updating weather")
