@@ -11,7 +11,7 @@ const getWeatherData = (api, set) => {
 }
 
 const temperature = (data) => {
-    return data.main.temp
+    return data.main.temp.toFixed(1)
 }
 
 const icon = (data) => {
