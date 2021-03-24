@@ -28,14 +28,14 @@ const SmartData = ({api}) => {
             console.log("updating weather")
         }, 20000)
         return () => clearInterval(interval) 
-    }, [])
+    }, [api])
 
     if (weather == null || weather.main == null) {
         return <div className={styles.smartData}></div>
     } else {
         return <div className={styles.smartData}>
             <p>{temperature(weather)}°C</p>
-            <img src={`http://openweathermap.org/img/wn/${icon(weather)}@2x.png`}/>
+            <img src={`http://openweathermap.org/img/wn/${icon(weather)}@2x.png`} alt='Weather Icon'/>
             </div>
     }
 }
