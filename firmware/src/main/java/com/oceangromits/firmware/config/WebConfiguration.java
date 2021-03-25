@@ -27,6 +27,7 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/api/setup_status").permitAll()
+                .antMatchers("/ping").permitAll()
                 .anyRequest().authenticated()
         .and().cors();
 
