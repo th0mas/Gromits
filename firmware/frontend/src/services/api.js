@@ -23,14 +23,17 @@ const useResource = (query, ...params) => {
         setData(json)
         setIsLoading(false)
       } catch (err) {
+        setIsLoading(false)
         setError(err)
       }
     }
 
-    fetchApi()
+    fetchApi() // eslint-disable-line
 
   }, [query, token])
 
   return {data, error, isLoading}
 
 }
+
+export default useResource

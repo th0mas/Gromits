@@ -1,4 +1,4 @@
-package com.oceangromits.firmware.web;
+package com.oceangromits.firmware.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
