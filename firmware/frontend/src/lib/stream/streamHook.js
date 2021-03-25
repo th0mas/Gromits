@@ -1,5 +1,5 @@
 // Declare a hook that can be used by multiple react components if needed.
-import {useState, useContext, useEffect, useReducer} from 'react'
+import {useContext, useEffect, useReducer} from 'react'
 import {SignalContext} from "../../contexts"
 import P2PStream from "./P2PStream"
 
