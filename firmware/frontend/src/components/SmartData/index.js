@@ -30,6 +30,11 @@ const SmartData = ({api}) => {
         return () => clearInterval(interval) 
     }, [api])
 
+    if (api == null) {
+        console.warn("No api key provided, smart data will not be avaliable")
+        return (null)
+    }
+
     if (weather == null || weather.main == null) {
         return <div className={styles.smartData}></div>
     } else {
