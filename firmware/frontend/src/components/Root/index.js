@@ -9,12 +9,14 @@ import {
 import Stream from '../Stream'
 import Setup from '../Setup'
 import SignalProvider from "../SignalProvider";
+import SmartData from '../SmartData/index.js'
 import Admin from "../Admin";
 
 const signalServerPath = process.env.REACT_APP_SIGNAL_URL  || "http://localhost:8080"
+const apiKey = process.env.REACT_APP_OPENWEATHER_API_KEY
 
 const Root = () => {
-  return (
+  return <>
     <SignalProvider url={signalServerPath + "/signaller"}>
       <Router>
       <Switch>
@@ -24,7 +26,8 @@ const Root = () => {
       </Switch>
       </Router>
     </SignalProvider>
-  )
+    <SmartData api={apiKey}/>
+  </>
 }
 
 export default Root
