@@ -13,8 +13,13 @@ import java.util.Objects;
 
 @Service
 public class ClientDetails implements UserDetailsService {
+
+    private final ClientRepository clientRepository;
+
     @Autowired
-    private ClientRepository clientRepository;
+    public ClientDetails(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

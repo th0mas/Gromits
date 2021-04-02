@@ -50,6 +50,7 @@ frontend {
 	verboseModeEnabled = false
 }
 
+// Bundle our frontend with the .jar file
 task copyWebApp(type: Copy) {
 	from 'frontend/build'
 	into 'build/resources/main/static/.'

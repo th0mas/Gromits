@@ -10,6 +10,7 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     Client findByName(String clientName);
 
+
     @Transactional
     void deleteByName(String username);
 }

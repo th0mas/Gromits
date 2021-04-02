@@ -35,6 +35,7 @@ public class JwtTokenProvider {
     private final long validLength = 365L * 24 * 60 * 60 * 1000; // 1 year in milliseconds
 
     @Autowired
+
     private ClientDetails clientDetails;
 
     @PostConstruct
@@ -80,6 +81,7 @@ public class JwtTokenProvider {
         }
     }
 
+    // TODO: think we don't want to do this? i'd prefer
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = clientDetails.loadUserByUsername(getClientId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
