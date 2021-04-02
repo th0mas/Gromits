@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.security;
 
-import com.oceangromits.firmware.GromitsException;
+import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Role;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

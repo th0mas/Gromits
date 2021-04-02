@@ -1,14 +1,10 @@
 package com.oceangromits.firmware.service;
 
-import com.oceangromits.firmware.GromitsException;
 import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

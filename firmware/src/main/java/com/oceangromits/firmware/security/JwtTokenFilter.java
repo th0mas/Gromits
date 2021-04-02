@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.security;
 
-import com.oceangromits.firmware.GromitsException;
+import com.oceangromits.firmware.exceptions.GromitsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;

@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.GromitsException;
+import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +33,23 @@ public class ApiController {
      */
     @GetMapping("/setup_status")
     boolean getSetupStatus() {
-        return clientRepository.count() > 0;
+        return isSetup();
     }
 
+    /*
+    Setup by initializing our first client - we'll presume this to be admin with a password.
+    TODO: Init with password
+    TODO: Init with role "Admin" 
+     */
     @PostMapping("/setup")
     Client setupServer(@RequestBody Client client) {
-        if (clientRepository.count() > 0) {
+        if (isSetup()) {
             throw new GromitsException("Server already setup", HttpStatus.FORBIDDEN);
         }
-        return new Client();
+        return clientRepository.save(client);
+    }
+
+    private boolean isSetup() {
+        return clientRepository.count() > 0;
     }
 }
