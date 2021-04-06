@@ -13,6 +13,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class ClientService {
 
     public String createAdmin(Client client) {
         client.setPassword(passwordEncoder.encode(client.getPassword()));
+        client.setRoles(Arrays.asList(Role.ROLE_CLIENT, Role.ROLE_ADMIN));
         clientRepository.save(client);
 
         return jwtTokenProvider.createToken(client.getName(), client.getRoles());

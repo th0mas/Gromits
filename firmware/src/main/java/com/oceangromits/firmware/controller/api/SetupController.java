@@ -44,8 +44,6 @@ public class SetupController {
 
     /*
     Setup by initializing our first client - we'll presume this to be admin with a password.
-    TODO: Init with password
-    TODO: Init with role "Admin"
      */
     @PostMapping("/new")
     String setupServer(@RequestBody Client client) {

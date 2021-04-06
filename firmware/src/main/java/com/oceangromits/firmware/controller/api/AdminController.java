@@ -21,7 +21,7 @@ public class AdminController {
         this.clientService = clientService;
     }
 
-    @PostMapping
+    @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password) {
         return clientService.signin(username, password);
     }
