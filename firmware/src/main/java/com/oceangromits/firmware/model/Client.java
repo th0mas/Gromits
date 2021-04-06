@@ -13,6 +13,8 @@ public class Client {
     @Column(unique = true)
     private String name;
 
+    private String password;
+
     @ElementCollection(fetch = FetchType.EAGER)
     List<Role> roles;
 
@@ -38,5 +40,13 @@ public class Client {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

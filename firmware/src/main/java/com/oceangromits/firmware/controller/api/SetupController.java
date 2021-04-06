@@ -2,10 +2,14 @@ package com.oceangromits.firmware.controller.api;
 
 import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Client;
+import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.repository.ClientRepository;
+import com.oceangromits.firmware.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 /*
 Contains the api methods for managing the server and security lifecycle.
@@ -18,10 +22,12 @@ future using a key-value store may be advantageous rather than bolting config on
 public class SetupController {
 
     private final ClientRepository clientRepository;
+    private final ClientService clientService;
 
     @Autowired
-    public SetupController(ClientRepository clientRepository) {
+    public SetupController(ClientRepository clientRepository, ClientService clientService) {
         this.clientRepository = clientRepository;
+        this.clientService = clientService;
     }
 
     /*
@@ -42,12 +48,12 @@ public class SetupController {
     TODO: Init with role "Admin"
      */
     @PostMapping("/new")
-    Client setupServer(@RequestBody Client client) {
+    String setupServer(@RequestBody Client client) {
         // Only setup an admin account if one doesn't exist
         if (isSetup()) {
             throw new GromitsException("Server already setup", HttpStatus.FORBIDDEN);
         }
-        return clientRepository.save(client);
+        return clientService.createAdmin(client);
     }
 
     private boolean isSetup() {

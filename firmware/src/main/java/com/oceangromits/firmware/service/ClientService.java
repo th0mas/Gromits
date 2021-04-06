@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.service;
 
 import com.oceangromits.firmware.exceptions.GromitsException;
+import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
@@ -36,6 +37,13 @@ public class ClientService {
         } catch (AuthenticationException e) {
             throw new GromitsException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    public String createAdmin(Client client) {
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
+        clientRepository.save(client);
+
+        return jwtTokenProvider.createToken(client.getName(), client.getRoles());
     }
 
     public String genClientToken(String clientID) {
