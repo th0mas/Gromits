@@ -23,7 +23,6 @@ const password = process.env.REACT_APP_PASSWORD || "test_pass"
 class Signaller {
   // Define stubs for vars to be set later.
   stompClient;
-  socket;
   errCallback;
 
   callbacks;

@@ -19,7 +19,7 @@ it("Context initializes a signaller", () => {
         <SigProv url={"test"}>
             <SignalContext.Consumer>
                 {(value) => { // Deep check to make sure socket gets init'd correctly
-                    expect(value.signaller.socket.url).toEqual('http://localhost/test')
+                    expect(value.signaller.stompClient.webSocketFactory().url).toEqual('http://localhost/test')
                 }}
             </SignalContext.Consumer>
         </SigProv>
