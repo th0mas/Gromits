@@ -3,6 +3,10 @@ import { render, screen } from '@testing-library/react'
 import SigProv from '../index'
 import {SignalContext} from '../../../contexts'
 
+import { TextEncoder, TextDecoder } from 'util'
+global.TextEncoder = TextEncoder 
+global.TextDecoder = TextDecoder
+
 // Simple sanity check to make sure our child components render
 it("Initializes providers correctly", () => {
     render(<SigProv url="Test" children={<h1>Test</h1>}/>)
