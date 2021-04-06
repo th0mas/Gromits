@@ -31,8 +31,9 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll() // Just for dev - don't know how to do this
                 .antMatchers("/signaller/**").permitAll() // This is probably fine?
-                .antMatchers("/api/**").permitAll() // This is probably not fine?
+                .antMatchers("/api/setup/**").permitAll()
                 .antMatchers("/ping").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and().cors();
 

@@ -1,4 +1,4 @@
-package com.oceangromits.firmware.controller;
+package com.oceangromits.firmware.controller.api;
 
 import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Client;
@@ -14,13 +14,13 @@ I'm sorry about some of the code here - and if theres security issues they're pr
 future using a key-value store may be advantageous rather than bolting config onto a relational database.
  */
 @RestController
-@RequestMapping("/api")
-public class ApiController {
+@RequestMapping("/api/setup")
+public class SetupController {
 
     private final ClientRepository clientRepository;
 
     @Autowired
-    public ApiController(ClientRepository clientRepository) {
+    public SetupController(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
     }
 
@@ -31,7 +31,7 @@ public class ApiController {
     The issue with this is that theres no easy way to "reset" - apart from dropping the db which might
     not actually be a bad idea.
      */
-    @GetMapping("/setup_status")
+    @GetMapping("/status")
     boolean getSetupStatus() {
         return isSetup();
     }
@@ -39,10 +39,11 @@ public class ApiController {
     /*
     Setup by initializing our first client - we'll presume this to be admin with a password.
     TODO: Init with password
-    TODO: Init with role "Admin" 
+    TODO: Init with role "Admin"
      */
-    @PostMapping("/setup")
+    @PostMapping("/new")
     Client setupServer(@RequestBody Client client) {
+        // Only setup an admin account if one doesn't exist
         if (isSetup()) {
             throw new GromitsException("Server already setup", HttpStatus.FORBIDDEN);
         }
