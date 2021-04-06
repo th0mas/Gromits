@@ -1,12 +1,10 @@
 package com.oceangromits.firmware.controller.api;
 
+import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -22,8 +20,8 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        return clientService.signin(username, password);
+    public String login(@RequestBody Client client) {
+        return clientService.signin(client.getName(), client.getPassword());
     }
 
 

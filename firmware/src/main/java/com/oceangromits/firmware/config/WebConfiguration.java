@@ -33,6 +33,7 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/signaller/**").permitAll() // This is probably fine?
                 .antMatchers("/api/setup/**").permitAll()
                 .antMatchers("/ping").permitAll()
+                .antMatchers("/api/admin/login/**").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and().cors();

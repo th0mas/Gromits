@@ -31,6 +31,7 @@ public class ClientDetails implements UserDetailsService {
 
         return User
                 .withUsername(username)
+                .password(client.getPassword())
                 .authorities(client.getRoles())
                 .accountExpired(false)
                 .accountLocked(false)
