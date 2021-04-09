@@ -41,9 +41,12 @@ class Signaller {
     this.stompClient.connectHeaders = {login: username, passcode: password}
     this.stompClient.onConnect = () => this.handleConnect()
     this.stompClient.onStompError = err => this.handle(err)
-    this.stompClient.onWebSocketClose = () => this.handleClose()
+    this.stompClient.onWebSocketClose = (err) => this.handleClose(err)
+
+    this.stompClient.onWebSocketError = err => this.handle("WS: " + err)
 
     this.stompClient.activate()
+
   }
 
   // Abstract away our error handler a bit
@@ -78,8 +81,13 @@ class Signaller {
   }
 
   // Render a nice error for closed connections
-  handleClose() {
-    this.handle("Connection closed")
+  handleClose(err) {
+    console.log(err.code)
+    if (err.code === 1002) {
+      this.handle("Please reauthenticate!")
+    } else {
+      this.handle(err.reason)
+    }
   }
 
   // Relay our signals to all listening clients.
