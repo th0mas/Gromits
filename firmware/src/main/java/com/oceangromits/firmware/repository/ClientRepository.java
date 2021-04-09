@@ -13,4 +13,5 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     @Transactional
     void deleteByName(String username);
+
 }

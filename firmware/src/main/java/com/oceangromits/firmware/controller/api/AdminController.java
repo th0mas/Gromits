@@ -24,11 +24,17 @@ public class AdminController {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
+    /*
+    Logs a user in as an admin, returns a Admin user token
+     */
     @PostMapping("/login")
     public String login(@RequestBody Client client) {
         return clientService.signin(client.getName(), client.getPassword());
     }
 
+    /*
+    Authorizes another client, allowing them to connect to the stream
+     */
     @PostMapping("/authorize_client")
     public Client authorizeClient(@RequestBody Client client) {
 

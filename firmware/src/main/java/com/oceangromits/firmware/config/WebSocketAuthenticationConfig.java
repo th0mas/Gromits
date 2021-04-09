@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.config;
 
 import com.oceangromits.firmware.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -20,6 +21,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    public WebSocketAuthenticationConfig(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {
@@ -28,9 +36,11 @@ public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConf
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
+                assert accessor != null;
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-//                    Authentication user = JwtTokenProvideraccessor.getHeader("token");
-//                    accessor.setUser(user);
+                    Authentication user =
+                            jwtTokenProvider.getAuthentication((String) accessor.getHeader("token"));
+                    accessor.setUser(user);
                 }
                 return message;
             }
