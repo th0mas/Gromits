@@ -37,7 +37,9 @@ public class AdminController {
      */
     @PostMapping("/authorize_client")
     public Client authorizeClient(@RequestBody Client client) {
-
+        simpMessagingTemplate.convertAndSendToUser(client.getName(), "/signal/me",
+                clientService.genClientToken(client.getName())
+                );
         return client;
     }
 
