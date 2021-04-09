@@ -75,7 +75,7 @@ class WebSocketAuthenticatorService {
         //}
 
         // null credentials, we do not pass the password along
-        if(username!="test" && password !="test"){
+        if(username!="gromit" || password !="test_pass"){
             throw new AuthenticationCredentialsNotFoundException("Username/password was incorret.");
         }
         return new UsernamePasswordAuthenticationToken(
