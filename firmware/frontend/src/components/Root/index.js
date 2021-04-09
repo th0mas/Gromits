@@ -9,7 +9,7 @@ import {
 import Stream from '../Stream'
 import Setup from '../Setup'
 import SignalProvider from "../SignalProvider";
-import SmartData from '../SmartData/index.js'
+import SmartData from '../SmartData';
 import Admin from "../Admin";
 
 const signalServerPath = process.env.REACT_APP_SIGNAL_URL  || "http://localhost:8080"
