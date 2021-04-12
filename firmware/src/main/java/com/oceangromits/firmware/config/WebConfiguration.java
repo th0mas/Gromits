@@ -15,8 +15,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 public class WebConfiguration extends WebSecurityConfigurerAdapter {
 
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    public WebConfiguration(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -25,9 +29,12 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
 
         httpSecurity
                 .authorizeRequests()
-                .antMatchers("/h2-console/**").permitAll()
-                .antMatchers("/api/setup_status").permitAll()
+                .antMatchers("/h2-console/**").permitAll() // Just for dev - don't know how to do this
+                .antMatchers("/signaller/**").permitAll() // This is probably fine?
+                .antMatchers("/api/setup/**").permitAll()
                 .antMatchers("/ping").permitAll()
+                .antMatchers("/api/admin/login/**").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and().cors();
 
