@@ -102,6 +102,7 @@ public class JwtTokenProvider {
         String[] authNames = new String[0];
 
         try {
+            @SuppressWarnings("unchecked")
             Collection<String> collection = (Collection<String>) extractClaims(token).get("auth");
             return collection.toArray(authNames);
         } catch (Exception e) {

@@ -13,4 +13,9 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
                 .simpDestMatchers("/webrtc/**").hasRole("CLIENT")
                 .simpSubscribeDestMatchers("/signal/**").hasRole("CLIENT");
     }
+
+    @Override
+    protected boolean sameOriginDisabled() {
+        return true;
+    }
 }

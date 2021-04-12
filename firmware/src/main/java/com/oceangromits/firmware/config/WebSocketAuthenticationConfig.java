@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.util.Objects;
+
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @Configuration
 @EnableWebSocketMessageBroker
@@ -37,7 +39,7 @@ public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConf
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 assert accessor != null;
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                if (StompCommand.CONNECT.equals(accessor.getCommand()) && Objects.nonNull(accessor.getHeader("token"))) {
                     Authentication user =
                             jwtTokenProvider.getAuthentication((String) accessor.getHeader("token"));
                     accessor.setUser(user);

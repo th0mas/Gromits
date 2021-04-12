@@ -25,9 +25,8 @@ public class WebConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf().disable();
-
         httpSecurity
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll() // Just for dev - don't know how to do this
                 .antMatchers("/signaller/**").permitAll() // This is probably fine?
