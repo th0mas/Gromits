@@ -18,13 +18,13 @@ public class SignallerController {
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
-    @MessageMapping("/webrtc.signal")
-    @SendTo("/signal/public") // This should not be public in future
+    @MessageMapping("signal")
+    @SendTo("/signal/private") // This should not be public in future
     public WebRTCSignal sendSignal(@Payload WebRTCSignal signal) {
         return signal;
     }
 
-    @MessageMapping("/webrtc.join")
+    @MessageMapping("join")
     @SendTo("/signal/public")
     public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
         String sender = signal.getSender();

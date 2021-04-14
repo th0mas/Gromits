@@ -39,6 +39,7 @@ class Signaller {
   }
 
   connect() {
+    console.log("Attempting connect....")
     this.stompClient.connectHeaders = {login: username, passcode: password}
     this.stompClient.onConnect = () => this.handleConnect()
     this.stompClient.onStompError = err => this.handle(err)
@@ -76,7 +77,7 @@ class Signaller {
     }
 
     this.stompClient.publish({
-      destination: "/webrtc/webrtc.join",
+      destination: "/webrtc/join",
       body: JSON.stringify(payload)
     })
   }

@@ -10,8 +10,9 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-                .simpDestMatchers("/webrtc/**").hasRole("CLIENT")
-                .simpSubscribeDestMatchers("/signal/**").hasRole("CLIENT");
+                .simpDestMatchers("/webrtc/signal").hasRole("CLIENT")
+                .simpSubscribeDestMatchers("/signal/private").hasRole("CLIENT")
+                .simpSubscribeDestMatchers("/signal/public").permitAll();
     }
 
     @Override

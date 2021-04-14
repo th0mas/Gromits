@@ -8,7 +8,11 @@ const SignalProvider = ({url, children}) => {
   let [sigErr, setSigErr] = useState("")
 
   const signaller = new Signaller(url, (err) => setSigErr(err))
-  useEffect(() => signaller.connect(), [url])
+  useEffect(() => {
+    signaller.connect()
+    console.log("Signaller reset!")
+
+  }, [url])
 
   return (
     <SignalContext.Provider value={{signaller, err: sigErr}}>
