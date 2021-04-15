@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 
 jest.mock('../../../lib/SmartData', () => ({
         ...jest.requireActual('../../../lib/SmartData'),
-        getWeatherData: function(api, setWeather) {
+        getWeatherData: async function(api, setWeather) {
             const data = {
                 main: {
                     temp: 25
@@ -18,7 +18,9 @@ jest.mock('../../../lib/SmartData', () => ({
 }))
 
 describe('Renders the individual parts', () => {
-    it ("Renders the temperature", () => {
-        
+    it ("Renders the temperature", async () => {
+        const { findByText } = render(<SmartData api={0}/>)
+        const div = await findByText(/25/i)
+        expect(div)
     })   
 })

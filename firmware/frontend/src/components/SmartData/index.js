@@ -20,7 +20,7 @@ const SmartData = ({api}) => {
     }
 
     if (weather == null || weather.main == null) {
-        console.error("Unable to access weather data")
+        console.warn("Unable to access weather data")
         return (null)
     } else {
         return <div className={styles.smartData}>
