@@ -23,6 +23,7 @@ class Signaller {
   stompClient;
   socket;
   errCallback;
+  authErrCallback;
   token;
 
   callbacks;
@@ -41,7 +42,7 @@ class Signaller {
     console.log("Attempting connect....")
 
     // Set our header conditionally if we have a token or not
-    this.stompClient.connectHeaders = this.token ? {token: this.token} : {}
+    this.stompClient.connectHeaders = this.token ? {token: this.token} : {name: deviceId}
 
     // Register our callbacks
     this.stompClient.onConnect = () => this.handleConnect()
@@ -61,14 +62,28 @@ class Signaller {
 
   }
 
+  disconnect() {
+    this.stompClient.deactivate()
+  }
+
   setToken(token) {
     this.token = token
   }
 
+  setAuthErrCallback(f) {
+    this.authErrCallback = f
+  }
+
   // Abstract away our error handler a bit
-  handle(err) {
-    console.log(`Signal error: ${err}`)
-    this.errCallback(`Signal: ${err}`)
+  handle(frame) {
+    this.errCallback(`Signal: ${frame}`)
+
+    if (frame.headers) {
+      if (frame.headers.message.includes("Access is denied") || frame.headers.message.includes("SignatureException")) {
+        console.log("attempting auth callback...")
+        this.authErrCallback()
+      }
+    }
   }
 
   // Allow other classes to register callbacks
@@ -100,16 +115,16 @@ class Signaller {
     this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
-    if (this.token) {
-      this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
-    }
+    // if (this.token) {
+    //   this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
+    // }
   }
 
   // Render a nice error for closed connections
   handleClose(err) {
-    console.log(err.code)
     if (err.code === 1002) {
-      this.handle("Please reauthenticate!")
+      this.handle("Connection to server lost")
+      
     } else {
       this.handle(err.reason)
     }

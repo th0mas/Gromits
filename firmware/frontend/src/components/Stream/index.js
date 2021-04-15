@@ -4,11 +4,15 @@ import InfoBox from "../InfoBox";
 
 import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
+import useResource from "../../services/api";
+import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
   let {videoSrc, streamState, streamErr} = useVideoStream()
   let {err} = useContext(SignalContext)
+
+  let {data, isLoading} = useResource("setup/status")
 
   useEffect(() => {
     let video = videoEl.current
@@ -16,8 +20,6 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
-    console.log(navigator.mediaDevices)
-    console.log(videoSrc)
     videoSrc
       ? video.srcObject = videoSrc
       : navigator.mediaDevices.getUserMedia({video: true})
@@ -32,8 +34,9 @@ const Stream = () => {
 
     <InfoHolder>
       {/* If we have any errors, render them here*/}
-      { streamErr && <InfoBox info={streamErr} />}
-      { err && <InfoBox info={err} />}
+      {(!isLoading && !data) && <SetupPromptBox />}
+      { (data && streamErr) && <InfoBox info={streamErr} />}
+      { (data && err) && <InfoBox info={err} />}
     </InfoHolder>
   </div>
 }

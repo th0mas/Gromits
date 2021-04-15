@@ -42,14 +42,19 @@ public class ClientService {
 
     public String createAdmin(Client client) {
         client.setPassword(passwordEncoder.encode(client.getPassword()));
-        client.setRoles(Arrays.asList(Role.ROLE_CLIENT, Role.ROLE_ADMIN));
+        client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN));
         clientRepository.save(client);
 
         return jwtTokenProvider.createToken(client.getName(), client.getRoles());
     }
 
-    public String genClientToken(String clientID) {
-        List<Role> roles = Collections.singletonList(Role.ROLE_CLIENT);
+    public String genClientVideoToken(String clientID) {
+        List<Role> roles = Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_CONNECT);
+        return jwtTokenProvider.createToken(clientID, roles);
+    }
+
+    public String genBasicToken(String clientID) {
+        List<Role> roles = Collections.singletonList(Role.ROLE_CONNECT);
         return jwtTokenProvider.createToken(clientID, roles);
     }
 }

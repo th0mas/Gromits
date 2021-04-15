@@ -4,6 +4,13 @@ public class TokenMessage {
     String clientID;
     String token;
 
+    public TokenMessage() {}
+
+    public TokenMessage(String clientID, String token) {
+        this.clientID = clientID;
+        this.token = token;
+    }
+
     public String getClientID() {
         return clientID;
     }

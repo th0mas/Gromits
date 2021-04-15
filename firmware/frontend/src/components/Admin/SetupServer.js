@@ -1,18 +1,22 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {post} from "../../services/api";
 import {UserAndPass} from "./UserAndPass";
+import {TokenContext} from "../../contexts";
 
 export const SetupServer = () => {
   let [user, setUser] = useState("")
   let [pass, setPass] = useState("")
+  let [, setToken] = useContext(TokenContext)
 
   const sendServerSetup = () => {
     if (user && pass) {
       post("setup/new", {
         name: user,
         password: pass
-      }).then(() =>
-        window.location.reload()
+      }).then((t) => {
+          setToken(t.token)
+          window.location.reload()
+        }
       )
     }
   }
