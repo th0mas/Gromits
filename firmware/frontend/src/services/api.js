@@ -2,6 +2,15 @@ import {useEffect, useState } from 'react'
 import useToken from "./token";
 import url from './url'
 
+const createHeaders = (token) => {
+  let tokenHeader = token ? {'Authorization': 'Bearer ' + token} : {}
+  return {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    ...tokenHeader
+  }
+}
+
 const useResource = (query, ...params) => {
   const [data, setData]           = useState(null);
   const [error, setError]         = useState(null);
@@ -14,9 +23,7 @@ const useResource = (query, ...params) => {
       setIsLoading(true)
       try {
         const res = await fetch(url + query, {
-          headers: {
-            Authorization: 'Bearer ' + token
-          }
+          headers: createHeaders(token)
         })
 
         const json = await res.json()
@@ -34,6 +41,17 @@ const useResource = (query, ...params) => {
 
   return {data, error, isLoading}
 
+}
+
+export const post = (resource, payload) => {
+  let reqUrl = `${url}${resource}/`
+  return fetch(reqUrl, {
+    method: 'POST',
+    headers: createHeaders(),
+    body: JSON.stringify(payload)
+  }).then(
+    (response => response.json())
+  )
 }
 
 export default useResource
