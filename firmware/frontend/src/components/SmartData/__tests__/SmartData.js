@@ -23,4 +23,10 @@ describe('Renders the individual parts', () => {
         const div = await findByText(/25/i)
         expect(div)
     })   
+
+    it ("Renders the weather icon", async () => {
+        const { findByAltText } = render(<SmartData api={0}/>)
+        const div = await findByAltText(/Weather Icon/i)
+        expect(div)
+    })
 })
