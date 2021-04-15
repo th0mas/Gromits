@@ -1,7 +1,7 @@
 package com.oceangromits.firmware.controller.api;
 
 import com.oceangromits.firmware.model.Client;
-import com.oceangromits.firmware.repository.ClientRepository;
+import com.oceangromits.firmware.model.TokenMessage;
 import com.oceangromits.firmware.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -34,9 +34,11 @@ public class AdminController {
      */
     @PostMapping("/authorize_client")
     public Client authorizeClient(@RequestBody Client client) {
-        simpMessagingTemplate.convertAndSendToUser(client.getName(), "/signal/me",
-                clientService.genClientToken(client.getName())
-                );
+        TokenMessage message = new TokenMessage();
+        message.setClientID(client.getName());
+        message.setToken(clientService.genClientToken(client.getName()));
+
+        simpMessagingTemplate.convertAndSendToUser(client.getName(), "/signal/me", message);
         return client;
     }
 

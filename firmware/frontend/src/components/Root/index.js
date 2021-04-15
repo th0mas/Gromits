@@ -17,15 +17,16 @@ const apiKey = process.env.REACT_APP_OPENWEATHER_API_KEY
 
 const Root = () => {
   return <>
-    <SignalProvider url={signalServerPath + "/signaller"}>
+
       <Router>
       <Switch>
-        <Route path="/setup"><Setup /></Route>
         <Route path="/admin"><Admin /></Route>
-        <Route path="/"><Stream /></Route>
+        <SignalProvider url={signalServerPath + "/signaller"}>
+          <Route path="/setup"><Setup /></Route>
+          <Route path="/"><Stream /></Route>
+        </SignalProvider>
       </Switch>
       </Router>
-    </SignalProvider>
     <SmartData api={apiKey}/>
   </>
 }

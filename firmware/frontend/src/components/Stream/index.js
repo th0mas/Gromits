@@ -1,10 +1,9 @@
 import React, {useEffect, useRef, useContext} from 'react'
+import InfoHolder from "../InfoHolder"
 import InfoBox from "../InfoBox";
 
-import styles from './Stream.module.scss'
 import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
-import ConnectionInfoBox from "../ConnectionInfoBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
@@ -28,13 +27,14 @@ const Stream = () => {
 
   }, [videoSrc])
 
-  return <div className={styles.container}>
-    <video autoPlay ref={videoEl} />
-    <ConnectionInfoBox info = {streamState}/>
+  return <div className="h-screen w-screen overflow-hidden">
+    <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>
 
-    {/* If we have any errors, render them here*/}
-    { streamErr && <InfoBox info={streamErr} />}
-    { err && <InfoBox info={err} />}
+    <InfoHolder>
+      {/* If we have any errors, render them here*/}
+      { streamErr && <InfoBox info={streamErr} />}
+      { err && <InfoBox info={err} />}
+    </InfoHolder>
   </div>
 }
 
