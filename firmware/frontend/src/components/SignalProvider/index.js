@@ -4,12 +4,15 @@ import { Signaller } from "../../lib/signal"
 import {SignalContext} from "../../contexts"
 
 // Allow global access to our signal module through React contexts
-const SignalProvider = ({url, children}) => {
+const SignalProvider = ({url, children, token}) => {
   let [sigErr, setSigErr] = useState("")
-
   const signaller = new Signaller(url, (err) => setSigErr(err))
+
   useEffect(() => {
     signaller.connect()
+    if (token) {
+      signaller.setToken(token)
+    }
     console.log("Signaller reset!")
 
   }, [url])
