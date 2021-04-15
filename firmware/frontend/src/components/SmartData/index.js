@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import styles from './SmartData.module.scss'
 
 // The city id for Bristol. Uisng id other name prevents conflict with other cities named Bristol
 const city = "2654675"
@@ -39,7 +38,7 @@ const SmartData = ({api}) => {
         console.error("Unable to access weather data")
         return (null)
     } else {
-        return <div className={styles.smartData}>
+        return <div className="">
             <p>{temperature(weather)}°C</p>
             <img src={`http://openweathermap.org/img/wn/${icon(weather)}@2x.png`} alt='Weather Icon'/>
             </div>
