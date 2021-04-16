@@ -3,6 +3,7 @@ package com.oceangromits.firmware.controller.api;
 import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
+import com.oceangromits.firmware.model.TokenMessage;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +47,12 @@ public class SetupController {
     Setup by initializing our first client - we'll presume this to be admin with a password.
      */
     @PostMapping("/new")
-    String setupServer(@RequestBody Client client) {
+    TokenMessage setupServer(@RequestBody Client client) {
         // Only setup an admin account if one doesn't exist
         if (isSetup()) {
             throw new GromitsException("Server already setup", HttpStatus.FORBIDDEN);
         }
-        return clientService.createAdmin(client);
+        return new TokenMessage(client.getName(), clientService.createAdmin(client));
     }
 
     private boolean isSetup() {

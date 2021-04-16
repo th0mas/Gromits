@@ -12,9 +12,9 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
                 .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.DISCONNECT, SimpMessageType.OTHER).permitAll()
-                .simpDestMatchers("/webrtc/signal").hasRole("CLIENT")
-                .simpSubscribeDestMatchers("/signal/private").hasRole("CLIENT")
-                .simpSubscribeDestMatchers("/signal/public").permitAll();
+                .simpDestMatchers("/webrtc/signal").hasRole("VIDEO")
+                .simpSubscribeDestMatchers("/signal/private").hasRole("VIDEO")
+                .anyMessage().hasRole("CONNECT");
     }
 
     @Override

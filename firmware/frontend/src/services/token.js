@@ -9,11 +9,17 @@ const useToken = () => {
     t && setToken(t)
   }
 
-  useEffect(() => {
-    getToken()
-  }, [token])
+  const updateToken = (token) => {
+    localStorage.setItem('token', token)
+    setToken(token)
+  }
 
-  return [token, setToken]
+  useEffect(() => {
+    console.log('you should only see this once')
+    getToken()
+  }, [])
+
+  return [token, updateToken]
 
 }
 

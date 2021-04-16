@@ -1,17 +1,25 @@
 import React from 'react'
 import useResource from "../../services/api";
+import {Login} from './login'
+import {SetupServer} from "./SetupServer"
+
+import submarine from './submarine.svg'
 
 const Admin = () => {
-  let {data, error, isLoading} = useResource("setup_status")
-
-  if (isLoading) {return <h2>Loading...</h2>}
-
-  if (error) {return <h2>Error loading: {error.toString()}</h2>}
-
+  let {data, isLoading} = useResource("setup/status")
   return (
-    <>
-      <h1>Setup this Gromit.</h1>
-    </>
+    <div className="h-screen w-screen bg-gradient-to-tr from-blue-400 to-green-400 flex">
+      <div className="bg-white p-4 rounded-2xl m-auto w-1/3 shadow">
+        <div className="flex space-x-2 items-center pb-4 mb-2 border-b-2">
+          <img src={submarine} className="h-7 w-7"/>
+          <p className="text-2xl font-bold">Ocean Gromits</p>
+        </div>
+        { isLoading ? <p>Loading....</p> :
+          data ? <Login /> : <SetupServer />
+        }
+
+      </div>
+    </div>
   )
 }
 
