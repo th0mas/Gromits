@@ -26,9 +26,16 @@ const useResource = (query, ...params) => {
           headers: createHeaders(token)
         })
 
-        const json = await res.json()
-        setData(json)
-        setIsLoading(false)
+        if (res.status >= 200 && res.status < 300) {
+          const json = await res.json()
+          setData(json)
+          setIsLoading(false)
+          setError(null)
+        } else {
+          throw new Error("Status code: " + res.status)
+        }
+
+        
       } catch (err) {
         setIsLoading(false)
         setError(err)

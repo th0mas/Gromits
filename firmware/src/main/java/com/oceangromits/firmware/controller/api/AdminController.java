@@ -53,5 +53,10 @@ public class AdminController {
         return simpClientService.getClients();
     }
 
+    @PostMapping("/reset")
+    public void resetServer() {
+        clientService.resetServerDangerously();
+    }
+
 
 }

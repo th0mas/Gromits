@@ -3,7 +3,7 @@ import useResource from "../../services/api";
 import {Login} from './login'
 import {SetupServer} from "./SetupServer"
 
-import submarine from './submarine.svg'
+import submarine from '../../images/submarine.svg'
 
 const Admin = () => {
   let {data, isLoading} = useResource("setup/status")

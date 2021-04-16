@@ -8,6 +8,7 @@ const TokenProvider = ({children}) => {
 
   useEffect(() => {
     if (token === "INVALID") {
+      console.log("Resetting token...")
       post("client/register", {
         name: "gromit_test"
       }).then(r => setToken(r.token))

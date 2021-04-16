@@ -25,7 +25,7 @@ const Stream = () => {
       : navigator.mediaDevices.getUserMedia({video: true})
         .then((stream) => {
           video.srcObject = stream
-        })
+        }).catch((e) => {})
 
   }, [videoSrc])
 

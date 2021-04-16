@@ -9,8 +9,9 @@ import {
 import Stream from '../Stream'
 import SignalProvider from "../SignalProvider";
 import SmartData from '../SmartData/index.js'
-import Admin from "../Admin";
+import Auth from "../Auth";
 import TokenProvider from "../TokenProvider";
+import Dash from '../Dash';
 
 const signalServerPath = process.env.REACT_APP_SIGNAL_URL  || "http://localhost:8080"
 const apiKey = process.env.REACT_APP_OPENWEATHER_API_KEY
@@ -20,9 +21,10 @@ const Root = () => {
       <TokenProvider>
       <Router>
       <Switch>
-        <Route path="/admin"><Admin /></Route>
+        <Route path="/auth"><Auth /></Route>
         <SignalProvider url={signalServerPath + "/signaller"}>
-          <Route path="/"><Stream /></Route>
+          <Route path="/dash"><Dash /></Route>
+          <Route exact path="/"><Stream /></Route>
         </SignalProvider>
       </Switch>
       </Router>

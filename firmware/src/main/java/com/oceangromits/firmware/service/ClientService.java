@@ -13,6 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +44,7 @@ public class ClientService {
 
     public String createAdmin(Client client) {
         client.setPassword(passwordEncoder.encode(client.getPassword()));
-        client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN));
+        client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
         clientRepository.save(client);
 
         return jwtTokenProvider.createToken(client.getName(), client.getRoles());
@@ -56,5 +58,9 @@ public class ClientService {
     public String genBasicToken(String clientID) {
         List<Role> roles = Collections.singletonList(Role.ROLE_CONNECT);
         return jwtTokenProvider.createToken(clientID, roles);
+    }
+
+    public void resetServerDangerously() {
+        clientRepository.deleteAll(); // lol
     }
 }

@@ -4,9 +4,7 @@ const useToken = () => {
   let [token, setToken] = useState("")
 
   const getToken = () => {
-    let t = localStorage.getItem('token')
-
-    t && setToken(t)
+    return localStorage.getItem('token')
   }
 
   const updateToken = (token) => {
@@ -16,7 +14,9 @@ const useToken = () => {
 
   useEffect(() => {
     console.log('you should only see this once')
-    getToken()
+    let t = getToken()
+
+    t ? setToken(t) : setToken("INVALID")
   }, [])
 
   return [token, updateToken]
