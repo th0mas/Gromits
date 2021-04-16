@@ -99,6 +99,9 @@ class Signaller {
 
   // internal method to handle our initial connection and subscribe to needed channels
   handleConnect() {
+    // Manually clear any old errors
+    this.errCallback('')
+
     this.registerSubscriptions()
 
     let payload = {
