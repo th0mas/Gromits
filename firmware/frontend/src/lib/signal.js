@@ -8,6 +8,7 @@ This file also defines a random device ID and our message type constants.
 
 import SockJS from 'sockjs-client'
 import {Client} from "@stomp/stompjs";
+import { hasRole } from './tokenUtils';
 
 const deviceId = "gromit_test"
 //Math.random().toString(36).substring(7)
@@ -115,9 +116,9 @@ class Signaller {
     this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
-    // if (this.token) {
-    //   this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
-    // }
+    if (hasRole(this.token, "ROLE_VIDEO")) {
+      this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
+    }
   }
 
   // Render a nice error for closed connections

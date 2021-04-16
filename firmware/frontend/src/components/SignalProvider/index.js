@@ -7,21 +7,23 @@ import {SignalContext, TokenContext} from "../../contexts"
 const SignalProvider = ({url, children}) => {
   let [sigErr, setSigErr] = useState("")
   let [token, setToken] = useContext(TokenContext)
-  const signaller = new Signaller(url, (err) => setSigErr(err))
+  let [signaller, setSignaller] = useState()
 
   const authError = () => {
     console.log("Clearing token")
-    setToken("")
+    setToken("INVALID")
   }
 
-  signaller.setAuthErrCallback(authError)
-
   useEffect(() => {
-    if (token) {
+    if (!signaller) {
+      const s = new Signaller(url, (err) => setSigErr(err))
+      s.setAuthErrCallback(authError)
+      setSignaller(s)
+    }
+
+    if (token && signaller) {
       signaller.setToken(token)
       signaller.connect()
-    } else {
-      signaller.disconnect()
     }
     
     console.log("Signaller reset!")

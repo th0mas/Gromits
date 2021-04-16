@@ -15,6 +15,7 @@ const useToken = () => {
   }
 
   useEffect(() => {
+    console.log('you should only see this once')
     getToken()
   }, [])
 

@@ -1,5 +1,5 @@
-import {useEffect, useState } from 'react'
-import useToken from "./token";
+import {useContext, useEffect, useState } from 'react'
+import { TokenContext } from '../contexts'
 import url from './url'
 
 const createHeaders = (token) => {
@@ -16,7 +16,7 @@ const useResource = (query, ...params) => {
   const [error, setError]         = useState(null);
   const [isLoading, setIsLoading] = useState(true)
 
-  const [token] = useToken();
+  const [token] = useContext(TokenContext);
 
   useEffect(() => {
     const fetchApi = async () => {

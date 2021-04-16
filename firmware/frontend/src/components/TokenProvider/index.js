@@ -7,8 +7,7 @@ const TokenProvider = ({children}) => {
   let [token, setToken] = useToken()
 
   useEffect(() => {
-    console.log(token)
-    if (!token) {
+    if (token === "INVALID") {
       post("client/register", {
         name: "gromit_test"
       }).then(r => setToken(r.token))
