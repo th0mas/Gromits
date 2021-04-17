@@ -33,7 +33,7 @@ public class AdminController {
      */
     @PostMapping("/login")
     public TokenMessage login(@RequestBody Client client) {
-        return new TokenMessage(client.getName(), clientService.signin(client.getName(), client.getPassword()));
+        return new TokenMessage(client.getName(), clientService.signIn(client.getName(), client.getPassword()));
     }
 
     /*

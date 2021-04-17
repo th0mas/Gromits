@@ -9,7 +9,7 @@ import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let {videoSrc, streamState, streamErr} = useVideoStream()
+  let {videoSrc, streamErr} = useVideoStream()
   let {err} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")

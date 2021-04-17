@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Controller
 public class SignallerController {
-    public static ArrayList<String> clients = new ArrayList<String>();
+    public static ArrayList<String> clients = new ArrayList<>();
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 

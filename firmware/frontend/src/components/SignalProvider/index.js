@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 
 import { Signaller } from "../../lib/signal"
 import {SignalContext, TokenContext} from "../../contexts"
@@ -9,10 +9,10 @@ const SignalProvider = ({url, children}) => {
   let [token, setToken] = useContext(TokenContext)
   let [signaller, setSignaller] = useState()
 
-  const authError = () => {
+  const authError = useCallback(() => {
     console.log("Clearing token")
     setToken("INVALID")
-  }
+  }, [setToken])
 
   useEffect(() => {
     if (!signaller) {
@@ -28,7 +28,7 @@ const SignalProvider = ({url, children}) => {
     
     console.log("Signaller reset!")
 
-  }, [url, token])
+  }, [url, token, signaller, authError]) 
 
   return (
     <SignalContext.Provider value={{signaller, err: sigErr}}>

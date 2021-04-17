@@ -13,7 +13,7 @@ const TokenProvider = ({children}) => {
         name: "gromit_test"
       }).then(r => setToken(r.token))
     }
-  }, [token])
+  }, [token, setToken])
 
   return <TokenContext.Provider value={[token, setToken]}>
     {children}

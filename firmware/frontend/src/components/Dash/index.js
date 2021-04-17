@@ -1,4 +1,3 @@
-import { data } from 'autoprefixer'
 import React, { useContext } from 'react'
 import { TokenContext } from '../../contexts'
 
@@ -20,7 +19,7 @@ const Dash = () => {
 
   return <div className="flex flex-col h-screen">
     <div className="flex space-x-2 items-center p-4 mb-2">
-      <img src={submarine} className="h-7 w-7" />
+      <img src={submarine} className="h-7 w-7" alt="Ocean Gromits logo"/>
       <p className="text-2xl font-bold">Ocean Gromits</p>
     </div>
 
