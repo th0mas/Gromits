@@ -28,9 +28,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (GromitsException ex) {
-//            SecurityContextHolder.clearContext();
-//            response.sendError(ex.getHttpStatus().value(), ex.getMessage());
-//            return;
+            SecurityContextHolder.clearContext();
+            response.sendError(ex.getHttpStatus().value(), ex.getMessage());
+            return;
         }
 
         filterChain.doFilter(request, response);
