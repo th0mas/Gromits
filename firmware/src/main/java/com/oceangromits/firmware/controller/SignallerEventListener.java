@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.controller;
 
 import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.service.SimpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class SignallerEventListener {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+    @Autowired
+    private SimpClientService scs;
+
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         // Stub method for later?
@@ -37,9 +41,7 @@ public class SignallerEventListener {
 
         if (deviceId == null) return;
 
-        SignallerController.clients.remove(deviceId);
-
-        logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
+        logger.info("Device disconnected : " + deviceId + ", Currently " + scs.getClientCount() + " client's connected");
 
         WebRTCSignal signal = new WebRTCSignal();
         signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);

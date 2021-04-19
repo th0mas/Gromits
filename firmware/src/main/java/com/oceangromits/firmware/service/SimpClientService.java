@@ -20,6 +20,10 @@ public class SimpClientService {
         this.simpUserRegistry = simpUserRegistry;
     }
 
+    public int getClientCount() {
+        return simpUserRegistry.getUserCount();
+    }
+
     public List<Principal> getClients() {
         Set<SimpUser> users = simpUserRegistry.getUsers();
         return users.stream().map(user -> user.getPrincipal())
