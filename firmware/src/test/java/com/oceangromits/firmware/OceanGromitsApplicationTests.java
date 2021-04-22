@@ -1,7 +1,15 @@
 package com.oceangromits.firmware;
 
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.oceangromits.firmware.controller.api.AdminController;
+import com.oceangromits.firmware.controller.api.ClientController;
 import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
+import com.oceangromits.firmware.model.TokenMessage;
+import com.oceangromits.firmware.model.WebRTCSignal;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
 import com.oceangromits.firmware.service.ClientService;
@@ -10,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,17 +30,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 class OceanGromitsApplicationTests {
 	@Autowired
-
 	private ClientService TestClientService;
+	@Autowired
+	private AdminController TestAdminController;
+	@Autowired
+	private ClientController TestClientController;
+
 	public Client TestClient;
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationManager authenticationManager;
 	private final PasswordEncoder passwordEncoder;
+	@Autowired
 	private final ClientRepository clientRepository;
 	private String ReturnedToken;
 	private String ExampleToken;
 	private String StringId;
+
+	private TokenMessage ReturnedTokenMessage;
+
+	private TokenMessage ExampleTokenMessage;
+	private TokenMessage TestTokenMessage;
+	private WebRTCSignal TestWebRTCSignal;
+
+	private JsonNode TestContent;
+
+	private WebRTCSignal.SignalType type;
+	public enum SignalType {
+		VIDEO_OFFER,
+		VIDEO_ANSWER,
+		NEW_ICE_CANDIDATE,
+		DEVICE_LEAVE,
+		DEVICE_JOIN
+	}
 
 	@Autowired
 	OceanGromitsApplicationTests(JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, ClientRepository clientRepository) {
@@ -44,22 +76,84 @@ class OceanGromitsApplicationTests {
 	void contextLoads() {
 	}
 
+	//Client tests
+	@Test
+	void testgetId(){
+		TestClient=new Client();
+		TestClient.setId(1);
+		Long RetrunedId=TestClient.getId();
+		assertEquals(RetrunedId,1);
+	}
+	@Test
+	void testgetName(){
+		TestClient=new Client();
+		TestClient.setName("username");
+		String ReturnedName=TestClient.getName();
+		assertEquals(ReturnedName,"username");
+	}
+	@Test
+	void testgetRoles(){
+		TestClient=new Client();
+		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO));
+		List<Role> ReturnedRoles=TestClient.getRoles();
+		assertEquals(ReturnedRoles,Arrays.asList(Role.ROLE_VIDEO));
+	}
+	@Test
+	void testgetPassword(){
+		TestClient=new Client();
+		TestClient.setPassword("password");
+		String ReturnedPassword=TestClient.getPassword();
+		assertEquals(ReturnedPassword,"password");
+	}
+
+	//TokenMessage tests
+	@Test
+	void testgetClientID(){
+		TestTokenMessage=new TokenMessage();
+		TestTokenMessage.setClientID("id");
+		String ReturnedClientId=TestTokenMessage.getClientID();
+		assertEquals(ReturnedClientId,"id");
+	}
+	@Test
+	void testgetToken(){
+		TestTokenMessage=new TokenMessage();
+		TestTokenMessage.setToken("token");
+		String ReturnedToken=TestTokenMessage.getToken();
+		assertEquals(ReturnedToken,"token");
+	}
+	
+	//WebRTCSignal tests 
+	@Test
+	void testgetType(){
+		TestWebRTCSignal=new WebRTCSignal();
+		TestWebRTCSignal.setType(WebRTCSignal.SignalType.DEVICE_JOIN);
+		WebRTCSignal.SignalType ReturnedType=TestWebRTCSignal.getType();
+		assertEquals(ReturnedType,WebRTCSignal.SignalType.DEVICE_JOIN);
+	}
+	@Test
+	void testgetSender(){
+		TestWebRTCSignal=new WebRTCSignal();
+		TestWebRTCSignal.setSender("sender");
+		String ReturnedSender=TestWebRTCSignal.getSender();
+		assertEquals(ReturnedSender,"sender");
+	}
+
 
 	//ClientService tests
 	@Test
 	void testCreateAdmin(){
-
-		ReturnedToken=TestClientService.createAdmin(TestClient);
+		TestClient=new Client();
 		TestClient.setName("username");
 		TestClient.setPassword("password");
+		ReturnedToken=TestClientService.createAdmin(TestClient);
 		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
 		ExampleToken=jwtTokenProvider.createToken(TestClient.getName(), TestClient.getRoles());
 		assertEquals(ReturnedToken,ExampleToken);
 
 	}
-
 	@Test
 	void testgenClientVideoToken(){
+		TestClient=new Client();
 		ReturnedToken=TestClientService.genClientVideoToken("1");
 		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_CONNECT));
 		TestClient.setId(1);
@@ -68,9 +162,9 @@ class OceanGromitsApplicationTests {
 		ExampleToken=jwtTokenProvider.createToken(StringId,TestClient.getRoles());
 		assertEquals(ExampleToken,ReturnedToken);
 	}
-
 	@Test
 	void testgenBasicToken(){
+		TestClient=new Client();
 		ReturnedToken=TestClientService.genBasicToken("1");
 		TestClient.setRoles(Arrays.asList(Role.ROLE_CONNECT));
 		TestClient.setId(1);
