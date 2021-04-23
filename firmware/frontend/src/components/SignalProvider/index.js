@@ -14,21 +14,23 @@ const SignalProvider = ({url, children}) => {
     setToken("INVALID")
   }, [setToken])
 
-  useEffect(() => {
+  const initializeSignaller = useCallback(() => {
     if (!signaller) {
       const s = new Signaller(url, (err) => setSigErr(err))
       s.setAuthErrCallback(authError)
       setSignaller(s)
     }
-
+  
     if (token && signaller) {
       signaller.setToken(token)
+      signaller.setSetTokenCallback(setToken) 
       signaller.connect()
     }
-    
-    console.log("Signaller reset!")
+  }, [url, token, signaller, setToken, authError])
 
-  }, [url, token, signaller, authError]) 
+
+  useEffect(() => initializeSignaller(),
+    [initializeSignaller]) 
 
   return (
     <SignalContext.Provider value={{signaller, err: sigErr}}>

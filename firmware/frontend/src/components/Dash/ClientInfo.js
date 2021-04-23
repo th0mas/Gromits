@@ -1,12 +1,15 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { TokenContext } from '../../contexts'
 import { post } from '../../services/api'
 
-export const ClientInfo = ({client}) => {
+export const ClientInfo = ({client, getData}) => {
+
+  let [token] = useContext(TokenContext)
 
   const authorizeClient = () => {
     post("admin/authorize_client", {
       name: client.name
-    }).then()
+    }, token).then(getData(token))
   }
 
   return <div className="bg-gradient-to-tr from-blue-500 to-blue-600 shadow 

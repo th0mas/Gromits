@@ -50,24 +50,30 @@ const useResource = (query, ...params) => {
 
 }
 
-export const post = (resource, payload) => {
+export const post = (resource, payload, token) => {
   let reqUrl = `${url}${resource}/`
   return fetch(reqUrl, {
     method: 'POST',
-    headers: createHeaders(),
+    headers: createHeaders(token),
     body: JSON.stringify(payload)
   }).then(
     (response => response.json())
   )
 }
 
-export const get = (resource) => {
+export const get = (resource, token) => {
   let reqUrl = `${url}${resource}/`
   return fetch(reqUrl, {
     method: 'GET',
-    headers: createHeaders()
+    headers: createHeaders(token)
   }).then(
-    response => response.json()
+    r => {
+      if (r.status >= 200 && r.status < 300) {
+        return r.json()
+      } else {
+        throw new Error("Status code:" + r.status)
+      }
+    }
   )
 }
 

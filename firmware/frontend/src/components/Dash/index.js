@@ -11,16 +11,16 @@ const Dash = () => {
   let [{data, error, isLoading}, dispatch] = useReducer(reducer, initialState)
   let [token] = useContext(TokenContext)
 
-  const getData = () => get("admin/clients")
+  const getData = (token) => get("admin/clients", token)
     .then((data) => dispatch({
       type: 'loaded',
       data
     }))
 
-  useEffect(() => {getData().catch(err => dispatch({
+  useEffect(() => {getData(token).catch(err => dispatch({
     type: 'error',
     error: err
-  }))}, [])
+  }))}, [token])
 
   let me = token ? decodeToken(token).sub : ""
 

@@ -23,6 +23,7 @@ class Signaller {
   socket;
   errCallback;
   authErrCallback;
+  setTokenCallback;
   token;
 
   callbacks;
@@ -73,6 +74,10 @@ class Signaller {
     this.authErrCallback = f
   }
 
+  setSetTokenCallback(f) {
+    this.setTokenCallback = f
+  }
+
   // Abstract away our error handler a bit
   handle(frame) {
     this.errCallback(`Signal: ${frame}`)
@@ -114,6 +119,7 @@ class Signaller {
 
   registerSubscriptions() {
     this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/user/queue/message', (payload) => this.handleDirectMessage(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
     if (hasRole(this.token, "ROLE_VIDEO")) {
@@ -142,6 +148,16 @@ class Signaller {
     // }
 
     this.callbacks.forEach((callback) => callback(content))
+  }
+
+  handleDirectMessage(signal) {
+    let content = JSON.parse(signal.body)
+
+    if (content.type === "TOKEN") {
+      console.log("Received new token, trying to set!")
+      //this.setTokenCallback(content.token)
+    }
+
   }
 
   send(obj) {

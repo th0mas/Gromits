@@ -7,6 +7,7 @@ import submarine from '../../images/submarine.svg'
 
 const Admin = () => {
   let {data, isLoading} = useResource("setup/status")
+
   return (
     <div className="h-screen w-screen bg-gradient-to-tr from-blue-400 to-green-400 flex">
       <div className="bg-white p-4 rounded-2xl m-auto w-1/3 shadow">
