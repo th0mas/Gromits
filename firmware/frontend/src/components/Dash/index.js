@@ -1,21 +1,35 @@
-import React, { useContext } from 'react'
+import React, {useContext, useEffect} from 'react'
 import { TokenContext } from '../../contexts'
 
 import submarine from '../../images/submarine.svg'
 import { decodeToken } from '../../lib/tokenUtils'
-import useResource from '../../services/api'
 import { ClientInfo } from './ClientInfo'
+import {useDashReducer} from "./reducer";
+import {get} from "../../services/api";
 
 const Dash = () => {
-  let { data, isLoading, error } = useResource("admin/clients")
+  let [{data, error, isLoading}, dispatch] = useDashReducer() // TODO: Finish reducer
   let [token] = useContext(TokenContext)
 
-  let me = decodeToken(token).sub
+  const getData = () => get("admin/clients")
+    .then((data) => dispatch({
+      type: 'loaded',
+      data
+    }))
+
+  useEffect(() => {getData().catch(err => dispatch({
+    type: 'error',
+    error: err
+  }))}, [])
+
+  let me = token ? decodeToken(token).sub : ""
 
   if (isLoading || !data) return <p>Loading...</p>
   if (error) return <p>Something has gone really wrong</p>
 
-  data = data.filter(item => item !== me)
+  data = data.filter(item => item.name !== me)
+
+  console.log(data)
 
   return <div className="flex flex-col h-screen">
     <div className="flex space-x-2 items-center p-4 mb-2">
@@ -27,7 +41,7 @@ const Dash = () => {
 
       <div className="bg-white flex h-5/6 flex-col space-y-2 p-4 pb-8 m-4 mb-8 rounded shadow-2xl">
         {data.map((client, index) => 
-          <ClientInfo name={client} key={index} />
+          <ClientInfo client={client} key={client.name} getData={getData}/>
         )}
       </div>
 

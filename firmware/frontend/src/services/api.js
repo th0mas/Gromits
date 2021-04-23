@@ -61,4 +61,14 @@ export const post = (resource, payload) => {
   )
 }
 
+export const get = (resource) => {
+  let reqUrl = `${url}${resource}/`
+  return fetch(reqUrl, {
+    method: 'GET',
+    headers: createHeaders()
+  }).then(
+    response => response.json()
+  )
+}
+
 export default useResource

@@ -8,7 +8,9 @@ const useToken = () => {
   }
 
   const updateToken = (token) => {
-    localStorage.setItem('token', token)
+    if (token !== "INVALID") {
+      localStorage.setItem('token', token)
+    }
     setToken(token)
   }
 

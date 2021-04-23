@@ -18,6 +18,7 @@ import io.jsonwebtoken.Claims;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
@@ -28,8 +29,9 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     // TODO: Securely store our secret key
-    @Value("${security.jwt.token.secret_key:secret-key}")
+    @Value("${secret_key:defaultdevelopmentkeydonotuseifatallpossible}")
     private String secretKey;
+
     private Key key;
 
     private final long validLength = 365L * 24 * 60 * 60 * 1000; // 1 year in milliseconds
@@ -37,7 +39,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // TODO: Persist this as it resets every time
+        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(String clientId, List<Role> roles) {

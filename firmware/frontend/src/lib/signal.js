@@ -10,8 +10,6 @@ import SockJS from 'sockjs-client'
 import {Client} from "@stomp/stompjs";
 import { hasRole } from './tokenUtils';
 
-const deviceId = "gromit_test"
-//Math.random().toString(36).substring(7)
 
 export const DEVICE_JOIN = 'DEVICE_JOIN'
 export const DEVICE_LEAVE = 'DEVICE_LEAVE'
@@ -43,7 +41,7 @@ class Signaller {
     console.log("Attempting connect....")
 
     // Set our header conditionally if we have a token or not
-    this.stompClient.connectHeaders = this.token ? {token: this.token} : {name: deviceId}
+    this.stompClient.connectHeaders = this.token ? {token: this.token} : {}
 
     // Register our callbacks
     this.stompClient.onConnect = () => this.handleConnect()
@@ -105,7 +103,6 @@ class Signaller {
     this.registerSubscriptions()
 
     let payload = {
-      sender: deviceId,
       type: DEVICE_JOIN
     }
 
@@ -139,16 +136,16 @@ class Signaller {
   //    out now
   handleSignal(signal) {
     let content = JSON.parse(signal.body)
-    if (content.sender === deviceId) {
-      console.log("discarding own message")
-      return
-    }
+    // if (content.sender === deviceId) {
+    //   console.log("discarding own message")
+    //   return
+    // }
 
     this.callbacks.forEach((callback) => callback(content))
   }
 
   send(obj) {
-    let payload = {...obj, sender: deviceId}
+    let payload = {...obj}
     this.stompClient.publish({
       destination: "/webrtc/signal",
       body: JSON.stringify(payload)
