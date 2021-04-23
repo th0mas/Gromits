@@ -27,7 +27,8 @@ public class SignallerController {
     @MessageMapping("join")
     // @SendTo("/signal/public")
     public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
-        String sender = signal.getSender();
+
+        String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
 
         if (clients.size() >= 2) {
             logger.info(sender + " is trying to connect to full instance");

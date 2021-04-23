@@ -1,12 +1,10 @@
-import {useReducer} from "react";
-
-const initialState = {
+export const initialState = {
   data: {},
   error: false,
   isLoading: true
 }
 
-const reducer = (state, action) => {
+export const reducer = (state, action) => {
   switch (action.type) {
     case 'loaded':
       return {data: action.data, isLoading: false, error: false}
@@ -16,5 +14,3 @@ const reducer = (state, action) => {
       return state
   }
 }
-
-export const useDashReducer = () => useReducer(reducer, initialState)

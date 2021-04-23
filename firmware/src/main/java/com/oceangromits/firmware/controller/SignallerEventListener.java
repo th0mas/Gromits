@@ -30,17 +30,17 @@ public class SignallerEventListener {
 
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String deviceId = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("clientId");
+        String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
 
-        if (deviceId == null) return;
+        if (sender == null) return;
 
-        SignallerController.clients.remove(deviceId);
+        SignallerController.clients.remove(sender);
 
-        logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
+        logger.info("Device disconnected : " + sender + ", Currently " + SignallerController.clients.size() + " client's connected");
 
         WebRTCSignal signal = new WebRTCSignal();
         signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
-        signal.setSender(deviceId);
+        signal.setSender(sender);
         messagingTemplate.convertAndSend("/signal/public", signal);
 
     }

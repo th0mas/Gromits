@@ -1,14 +1,14 @@
-import React, {useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useReducer} from 'react'
 import { TokenContext } from '../../contexts'
 
 import submarine from '../../images/submarine.svg'
 import { decodeToken } from '../../lib/tokenUtils'
 import { ClientInfo } from './ClientInfo'
-import {useDashReducer} from "./reducer";
 import {get} from "../../services/api";
+import { initialState, reducer } from './reducer'
 
 const Dash = () => {
-  let [{data, error, isLoading}, dispatch] = useDashReducer() // TODO: Finish reducer
+  let [{data, error, isLoading}, dispatch] = useReducer(reducer, initialState)
   let [token] = useContext(TokenContext)
 
   const getData = () => get("admin/clients")
