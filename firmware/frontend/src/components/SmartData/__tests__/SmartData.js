@@ -30,3 +30,4 @@ describe('Renders the individual parts', () => {
         expect(div)
     })
 })
+
