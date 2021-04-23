@@ -10,6 +10,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.security.Principal;
 import java.util.Objects;
 
 @Component
@@ -30,17 +31,17 @@ public class SignallerEventListener {
 
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
+        Principal sender = headerAccessor.getUser();
 
         if (sender == null) return;
 
-        SignallerController.clients.remove(sender);
+        SignallerController.clients.remove(sender.getName());
 
         logger.info("Device disconnected : " + sender + ", Currently " + SignallerController.clients.size() + " client's connected");
 
         WebRTCSignal signal = new WebRTCSignal();
         signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
-        signal.setSender(sender);
+        signal.setSender(sender.getName());
         messagingTemplate.convertAndSend("/signal/public", signal);
 
     }
