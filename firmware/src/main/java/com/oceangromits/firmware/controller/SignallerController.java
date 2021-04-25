@@ -25,7 +25,7 @@ public class SignallerController {
     }
 
     @MessageMapping("join")
-    // @SendTo("/signal/public")
+    @SendTo("/signal/private")
     public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
 
         String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();

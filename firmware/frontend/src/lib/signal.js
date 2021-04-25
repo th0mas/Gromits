@@ -53,17 +53,12 @@ class Signaller {
     // Cleanly disconnect from old socket
     // We need this as we sometimes call `connect` on an already open socket with different tokens/roles.
     // This helps our server recognise our new roles and keeps our state management cleaner.
-    try {
-      this.stompClient.deactivate()
-        .then(this.stompClient.activate())
-    } catch (e) {
-      console.log(e)
-    }
+    this.stompClient.activate()
 
   }
 
   disconnect() {
-    this.stompClient.deactivate()
+    return this.stompClient.deactivate()
   }
 
   setToken(token) {
@@ -155,7 +150,7 @@ class Signaller {
 
     if (content.type === "TOKEN") {
       console.log("Received new token, trying to set!")
-      //this.setTokenCallback(content.token)
+      this.setTokenCallback(content.token)
     }
 
   }
