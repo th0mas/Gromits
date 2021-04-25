@@ -11,7 +11,7 @@ const SignalProvider = ({url, children}) => {
 
   const authError = useCallback(() => {
     console.log("Clearing token")
-    setToken("INVALID")
+    setToken(null)
   }, [setToken])
 
   const initializeSignaller = useCallback(() => {

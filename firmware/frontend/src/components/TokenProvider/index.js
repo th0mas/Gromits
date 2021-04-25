@@ -9,7 +9,7 @@ const TokenProvider = ({children}) => {
   let [token, setToken] = useToken()
 
   useEffect(() => {
-    if (token === "INVALID") {
+    if (!token) {
       console.log("Resetting token...")
       post("client/register", {
         name: deviceId

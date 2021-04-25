@@ -8,7 +8,7 @@ const useToken = () => {
   }
 
   const updateToken = (token) => {
-    if (token !== "INVALID") {
+    if (token) {
       localStorage.setItem('token', token)
     }
     setToken(token)
@@ -18,7 +18,7 @@ const useToken = () => {
     console.log('you should only see this once')
     let t = getToken()
 
-    t ? setToken(t) : setToken("INVALID")
+    t ? setToken(t) : setToken(null)
   }, [])
 
   return [token, updateToken]
