@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,15 +18,22 @@ public class SignallerController {
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
+    /*
+    Manage the sending of WebRTC signals.
+
+    Currently we only attach the sender to the message before sending it on to guarantee the correct user is set.
+    I have no idea why you have to do this manually in Spring.
+     */
     @MessageMapping("signal")
-    @SendTo("/signal/private") // This should not be public in future
-    public WebRTCSignal sendSignal(@Payload WebRTCSignal signal) {
+    @SendTo("/msg/private")
+    public WebRTCMessage sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
+        signal.setSender(headerAccessor.getUser().getName());
         return signal;
     }
 
     @MessageMapping("join")
-    @SendTo("/signal/private")
-    public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
+    @SendTo("/msg/private")
+    public WebRTCMessage joinClient(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
 
         String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
 
@@ -43,6 +50,7 @@ public class SignallerController {
 
         logger.info("Device connected : " + sender + " currently " + clients.size() + " clients");
 
+        signal.setSender(headerAccessor.getUser().getName());
         return signal;
     }
 }

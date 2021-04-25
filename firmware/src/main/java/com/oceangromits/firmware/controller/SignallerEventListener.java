@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
-import java.util.Objects;
 
 @Component
 public class SignallerEventListener {
@@ -39,8 +38,8 @@ public class SignallerEventListener {
 
         logger.info("Device disconnected : " + sender + ", Currently " + SignallerController.clients.size() + " client's connected");
 
-        WebRTCSignal signal = new WebRTCSignal();
-        signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
+        WebRTCMessage signal = new WebRTCMessage();
+        signal.setSignalType(WebRTCMessage.SignalType.DEVICE_LEAVE);
         signal.setSender(sender.getName());
         messagingTemplate.convertAndSend("/signal/public", signal);
 

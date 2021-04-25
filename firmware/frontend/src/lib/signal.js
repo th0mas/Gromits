@@ -8,7 +8,7 @@ This file also defines a random device ID and our message type constants.
 
 import SockJS from 'sockjs-client'
 import {Client} from "@stomp/stompjs";
-import { hasRole } from './tokenUtils';
+import { clientId, hasRole } from './tokenUtils';
 
 
 export const DEVICE_JOIN = 'DEVICE_JOIN'
@@ -25,6 +25,7 @@ class Signaller {
   authErrCallback;
   setTokenCallback;
   token;
+  clientId
 
   callbacks;
 
@@ -63,6 +64,7 @@ class Signaller {
 
   setToken(token) {
     this.token = token
+    this.clientId = clientId(token)
   }
 
   setAuthErrCallback(f) {
@@ -113,12 +115,12 @@ class Signaller {
   }
 
   registerSubscriptions() {
-    this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/msg/public', (payload) => this.handleSignal(payload))
     this.stompClient.subscribe('/user/queue/message', (payload) => this.handleDirectMessage(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
     if (hasRole(this.token, "ROLE_VIDEO")) {
-      this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
+      this.stompClient.subscribe('/msg/private', (payload) => this.handleSignal(payload))
     }
   }
 
@@ -137,10 +139,10 @@ class Signaller {
   //    out now
   handleSignal(signal) {
     let content = JSON.parse(signal.body)
-    // if (content.sender === deviceId) {
-    //   console.log("discarding own message")
-    //   return
-    // }
+    if (content.sender === this.clientId) {
+      console.log("discarding own message")
+      return
+    }
 
     this.callbacks.forEach((callback) => callback(content))
   }

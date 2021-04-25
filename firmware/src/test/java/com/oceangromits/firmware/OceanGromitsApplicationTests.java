@@ -1,15 +1,11 @@
 package com.oceangromits.firmware;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oceangromits.firmware.controller.api.AdminController;
 import com.oceangromits.firmware.controller.api.ClientController;
 import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.model.TokenMessage;
-import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
 import com.oceangromits.firmware.service.ClientService;
@@ -20,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,11 +46,11 @@ class OceanGromitsApplicationTests {
 
 	private TokenMessage ExampleTokenMessage;
 	private TokenMessage TestTokenMessage;
-	private WebRTCSignal TestWebRTCSignal;
+	private WebRTCMessage testWebRTCMessage;
 
 	private JsonNode TestContent;
 
-	private WebRTCSignal.SignalType type;
+	private WebRTCMessage.SignalType type;
 	public enum SignalType {
 		VIDEO_OFFER,
 		VIDEO_ANSWER,
@@ -125,16 +120,16 @@ class OceanGromitsApplicationTests {
 	//WebRTCSignal tests 
 	@Test
 	void testgetType(){
-		TestWebRTCSignal=new WebRTCSignal();
-		TestWebRTCSignal.setType(WebRTCSignal.SignalType.DEVICE_JOIN);
-		WebRTCSignal.SignalType ReturnedType=TestWebRTCSignal.getType();
-		assertEquals(ReturnedType,WebRTCSignal.SignalType.DEVICE_JOIN);
+		testWebRTCMessage =new WebRTCMessage();
+		testWebRTCMessage.setSignalType(WebRTCMessage.SignalType.DEVICE_JOIN);
+		WebRTCMessage.SignalType ReturnedType= testWebRTCMessage.getSignalType();
+		assertEquals(ReturnedType, WebRTCMessage.SignalType.DEVICE_JOIN);
 	}
 	@Test
 	void testgetSender(){
-		TestWebRTCSignal=new WebRTCSignal();
-		TestWebRTCSignal.setSender("sender");
-		String ReturnedSender=TestWebRTCSignal.getSender();
+		testWebRTCMessage =new WebRTCMessage();
+		testWebRTCMessage.setSender("sender");
+		String ReturnedSender= testWebRTCMessage.getSender();
 		assertEquals(ReturnedSender,"sender");
 	}
 
