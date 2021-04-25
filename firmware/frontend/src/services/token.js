@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react'
 
 const useToken = () => {
   let [token, setToken] = useState("")
+  let [tokenLoaded, setTokenLoaded] = useState(false)
 
   const getToken = () => {
     return localStorage.getItem('token')
@@ -19,9 +20,11 @@ const useToken = () => {
     let t = getToken()
 
     t ? setToken(t) : setToken(null)
+
+    setTokenLoaded(true)
   }, [])
 
-  return [token, updateToken]
+  return [token, updateToken, tokenLoaded]
 
 }
 
