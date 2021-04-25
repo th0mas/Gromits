@@ -41,7 +41,7 @@ public class SignallerEventListener {
         WebRTCMessage signal = new WebRTCMessage();
         signal.setSignalType(WebRTCMessage.SignalType.DEVICE_LEAVE);
         signal.setSender(sender.getName());
-        messagingTemplate.convertAndSend("/signal/public", signal);
+        messagingTemplate.convertAndSend("/msg/public", signal);
 
     }
 
