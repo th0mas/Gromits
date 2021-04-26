@@ -26,9 +26,9 @@ const useVideoStream = (stream) => {
         payload: err
       }))
 
-      p2pStream.setTracks(stream)
+      p2pStream.setLocalStream(stream)
 
-      p2pStream.open((videoSrc) => dispatch({
+      p2pStream.setRemoteStreamCallback((videoSrc) => dispatch({
         type: NEW_VIDEO_SRC,
         payload: videoSrc
       }))

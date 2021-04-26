@@ -3,7 +3,6 @@ Signaller is an abstraction over communicating with the signalling server itself
 
 Other parts of the application should only need to use the `send(obj)` method.
 
-This file also defines a random device ID and our message type constants.
  */
 
 import SockJS from 'sockjs-client'
@@ -17,6 +16,11 @@ export const VIDEO_OFFER = 'VIDEO_OFFER'
 export const VIDEO_ANSWER = 'VIDEO_ANSWER'
 export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
 
+enum Channel { 
+  Private,
+  User
+} 
+
 class Signaller {
   // Define stubs for vars to be set later.
   stompClient
@@ -26,12 +30,12 @@ class Signaller {
   token?: string
   clientId?: string
 
-  callbacks: Array<(a: any) => void>
+  callbacks: Array<(a: any) => void> = []
+  userCallbacks: Array<(a: any) => void> = []
 
 
   // Creates our socket and stompJs clients
   constructor(url: string, errCallback: (e: string) => void, authErrCallback: () => void, setTokenCallback: (t: string) => void) {
-    this.callbacks = []
     this.errCallback = errCallback
     this.authErrCallback = authErrCallback
     this.setTokenCallback = setTokenCallback
@@ -82,13 +86,18 @@ class Signaller {
   }
 
   // Allow other classes to register callbacks
-  registerRTCCallback(callback: (a: any) => void) {
-    this.callbacks.push(callback)
+  registerRTCCallback(callback: (a: any) => void, channel?: Channel) {
+    if (channel === Channel.Private || !channel)  {
+      this.callbacks.push(callback)
+    } else if (channel === Channel.User) {
+      this.userCallbacks.push(callback)
+    }
   }
 
   // Remove our callbacks - perf optimisation when using Hooks
   removeRTCCallback(callback: (a: any) => void) {
     this.callbacks.filter(item => item != callback)
+    this.userCallbacks.filter(item => item != callback)
   }
 
   // internal method to handle our initial connection and subscribe to needed channels
@@ -98,14 +107,14 @@ class Signaller {
 
     this.registerSubscriptions()
 
-    let payload = {
-      type: DEVICE_JOIN
-    }
+    // let payload = {
+    //   type: DEVICE_JOIN
+    // }
 
-    this.stompClient.publish({
-      destination: "/webrtc/join",
-      body: JSON.stringify(payload)
-    })
+    // this.stompClient.publish({
+    //   destination: "/webrtc/join",
+    //   body: JSON.stringify(payload)
+    // })
   }
 
   registerSubscriptions() {
@@ -147,8 +156,11 @@ class Signaller {
     if (content.type === "TOKEN") {
       console.log("Received new token, trying to set!")
       this.setTokenCallback(content.token)
+      return
     }
 
+
+    this.userCallbacks.forEach((callback) => callback(content))
   }
 
   send(obj: Object, to?: string) {

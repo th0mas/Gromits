@@ -5,14 +5,15 @@ class RTCStream {
   localStream?: MediaStream
   peerConnection: RTCPeerConnection
   setRemoteStream?: (stream: MediaStream) => void 
-  onConnectionStateChange: (e: Event) => void
+  onConnectionStateChange!: (e: Event) => void
 
   constructor (sendSignal: Function, setError: Function,
-    onConnectionStateChange: (e: Event) => void
+    onConnectionStateChange: (e: string) => void
     ) {
     this.sendSignal = sendSignal
     this.setError = setError
-    this.onConnectionStateChange = onConnectionStateChange
+    
+    this.setConnectionCallback(onConnectionStateChange)
 
     this.peerConnection = new RTCPeerConnection({
       iceServers: [
@@ -28,18 +29,23 @@ class RTCStream {
     this.peerConnection.onicecandidate = (e) => this.handleICECandidateEvent(e)
     this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
     this.peerConnection.onnegotiationneeded = () => this.handleNegotiationNeeded()
-
-    if (this.localStream) {
-      this.localStream.getVideoTracks().forEach(
-        track => this.peerConnection.addTrack(track, this.localStream!)
-      )
-    }
+    this.peerConnection.onconnectionstatechange = (e) => this.onConnectionStateChange(e)
   }
 
   close(): void {
     if (this.peerConnection) {
       return this.peerConnection.close()
     }
+  }
+
+  start(): void{
+    if (this.localStream) {
+      this.localStream.getVideoTracks().forEach(
+        track => this.peerConnection.addTrack(track, this.localStream!)
+      )
+    }
+
+    this.handleNegotiationNeeded()
   }
 
   handleRemoteStream(f: (stream: MediaStream) => void) {
@@ -61,8 +67,9 @@ class RTCStream {
     this.setError(null)
 
     let desc = new RTCSessionDescription(offer)
-
     this.peerConnection.setRemoteDescription(desc)
+    .then(() => this.localStream?.getVideoTracks().forEach(
+      track => this.peerConnection.addTrack(track, this.localStream!)))
     .then(() => this.peerConnection.createAnswer())
     .then((ans) => this.peerConnection.setLocalDescription(ans))
     .then(() => this.sendSignal({
