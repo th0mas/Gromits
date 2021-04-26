@@ -14,16 +14,19 @@ const initialState = {
   signalErr: null
 }
 
-const useVideoStream = () => {
+const useVideoStream = (stream) => {
   let [state, dispatch] = useReducer(reducer, initialState)
   let {signaller} = useContext(SignalContext)
 
+  // Set our main stream
   useEffect(() => {
-    if (signaller) {
+    if (signaller && stream) {
       let p2pStream = new P2PStream(signaller, (err) => dispatch({
         type: VIDEO_ERR,
         payload: err
       }))
+
+      p2pStream.setTracks(stream)
 
       p2pStream.open((videoSrc) => dispatch({
         type: NEW_VIDEO_SRC,
@@ -35,7 +38,7 @@ const useVideoStream = () => {
         payload: status
       }))
     }
-  }, [signaller])
+  }, [signaller, stream])
 
   return state // TODO: Refactor sigErr into state
 }

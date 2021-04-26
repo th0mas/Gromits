@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useContext} from 'react'
+import React, {useEffect, useRef, useContext, useState, useCallback} from 'react'
 import InfoHolder from "../InfoHolder"
 import InfoBox from "../InfoBox";
 
@@ -9,10 +9,16 @@ import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let {videoSrc, streamErr} = useVideoStream()
+  let [localStream, setLocalStream] = useState()
+  let {videoSrc, streamErr} = useVideoStream(localStream)
   let {err} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({video: true})
+      .then(s => setLocalStream(s))
+    }, [])
 
   useEffect(() => {
     let video = videoEl.current
@@ -20,14 +26,10 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
-    videoSrc
-      ? video.srcObject = videoSrc
-      : navigator.mediaDevices.getUserMedia({video: true})
-        .then((stream) => {
-          video.srcObject = stream
-        }).catch((e) => {})
-
-  }, [videoSrc])
+    if (videoSrc || localStream) {
+      video.srcObject = videoSrc || localStream
+    }
+  }, [videoSrc, localStream])
 
   return <div className="h-screen w-screen overflow-hidden">
     <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>

@@ -7,7 +7,7 @@ This file also defines a random device ID and our message type constants.
  */
 
 import SockJS from 'sockjs-client'
-import {Client} from "@stomp/stompjs";
+import {Client, IFrame} from "@stomp/stompjs";
 import { clientId, hasRole } from './tokenUtils';
 
 
@@ -19,23 +19,25 @@ export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
 
 class Signaller {
   // Define stubs for vars to be set later.
-  stompClient;
-  socket;
-  errCallback;
-  authErrCallback;
-  setTokenCallback;
-  token;
-  clientId
+  stompClient
+  errCallback
+  authErrCallback: () => void
+  setTokenCallback: (t: string) => void;
+  token?: string
+  clientId?: string
 
-  callbacks;
+  callbacks: Array<(a: any) => void>
 
 
   // Creates our socket and stompJs clients
-  constructor(url, errCallback) {
+  constructor(url: string, errCallback: (e: string) => void, authErrCallback: () => void, setTokenCallback: (t: string) => void) {
     this.callbacks = []
     this.errCallback = errCallback
+    this.authErrCallback = authErrCallback
+    this.setTokenCallback = setTokenCallback
       
     this.stompClient = new Client()
+    // @ts-ignore
     this.stompClient.webSocketFactory = () => new SockJS(url)
   }
 
@@ -62,24 +64,16 @@ class Signaller {
     return this.stompClient.deactivate()
   }
 
-  setToken(token) {
+  setToken(token: string) {
     this.token = token
     this.clientId = clientId(token)
   }
 
-  setAuthErrCallback(f) {
-    this.authErrCallback = f
-  }
-
-  setSetTokenCallback(f) {
-    this.setTokenCallback = f
-  }
-
   // Abstract away our error handler a bit
-  handle(frame) {
+  handle(frame: IFrame | String) {
     this.errCallback(`Signal: ${frame}`)
 
-    if (frame.headers) {
+    if (this.isIFrame(frame)) {
       if (frame.headers.message.includes("Access is denied") || frame.headers.message.includes("SignatureException")) {
         console.log("attempting auth callback...")
         this.authErrCallback()
@@ -88,13 +82,13 @@ class Signaller {
   }
 
   // Allow other classes to register callbacks
-  registerRTCCallback(callback) {
+  registerRTCCallback(callback: (a: any) => void) {
     this.callbacks.push(callback)
   }
 
   // Remove our callbacks - perf optimisation when using Hooks
-  removeRTCCallback(_callback) {
-    this.callbacks = [] // TODO: do this properly
+  removeRTCCallback(callback: (a: any) => void) {
+    this.callbacks.filter(item => item != callback)
   }
 
   // internal method to handle our initial connection and subscribe to needed channels
@@ -125,7 +119,7 @@ class Signaller {
   }
 
   // Render a nice error for closed connections
-  handleClose(err) {
+  handleClose(err: CloseEvent) {
     if (err.code === 1002) {
       this.handle("Connection to server lost")
       
@@ -137,7 +131,7 @@ class Signaller {
   // Relay our signals to all listening clients.
   //  - might not be needed in the end but worth buulding
   //    out now
-  handleSignal(signal) {
+  handleSignal(signal: any) {
     let content = JSON.parse(signal.body)
     if (content.sender === this.clientId) {
       console.log("discarding own message")
@@ -147,7 +141,7 @@ class Signaller {
     this.callbacks.forEach((callback) => callback(content))
   }
 
-  handleDirectMessage(signal) {
+  handleDirectMessage(signal: any) {
     let content = JSON.parse(signal.body)
 
     if (content.type === "TOKEN") {
@@ -157,13 +151,17 @@ class Signaller {
 
   }
 
-  send(obj) {
-    let payload = {...obj}
+  send(obj: Object, to?: string) {
+    let payload = {...obj, to}
     this.stompClient.publish({
       destination: "/webrtc/signal",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
+  }
+
+  private isIFrame(object: any): object is IFrame {
+    return (object as IFrame).headers !== undefined
   }
 
 

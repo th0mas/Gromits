@@ -16,9 +16,7 @@ const SignalProvider = ({url, children}) => {
 
   const initializeSignaller = useCallback(() => {
     if (!signaller) {
-      const s = new Signaller(url, (err) => setSigErr(err))
-      s.setAuthErrCallback(authError)
-      s.setSetTokenCallback(setToken) 
+      const s = new Signaller(url, (err) => setSigErr(err), authError, setToken)
       setSignaller(s)
     }
   }, [url, signaller, setToken, authError])
