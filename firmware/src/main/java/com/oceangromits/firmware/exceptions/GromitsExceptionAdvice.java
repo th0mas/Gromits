@@ -12,7 +12,7 @@ public class GromitsExceptionAdvice {
     @ResponseBody
     @ExceptionHandler(GromitsException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    String gromitsForbiddenHandler(GromitsException exception) {
+    public String gromitsForbiddenHandler(GromitsException exception) {//made public shouldn't mess things up?
         return exception.getMessage();
     }
 

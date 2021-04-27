@@ -48,7 +48,7 @@ public class ClientService {
     public String createAdmin(Client client) {
         client.setPassword(passwordEncoder.encode(client.getPassword()));
         client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
-        clientRepository.save(client);
+        clientRepository.save(client);//commenting out fixes test
 
         return jwtTokenProvider.createToken(client.getName(), client.getRoles());
     }

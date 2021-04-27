@@ -1,7 +1,11 @@
 package com.oceangromits.firmware;
 
+import com.oceangromits.firmware.controller.IndexController;
+import com.oceangromits.firmware.controller.SignallerController;
 import com.oceangromits.firmware.controller.api.AdminController;
 import com.oceangromits.firmware.controller.api.ClientController;
+import com.oceangromits.firmware.exceptions.GromitsException;
+import com.oceangromits.firmware.exceptions.GromitsExceptionAdvice;
 import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.model.TokenMessage;
@@ -12,11 +16,20 @@ import com.oceangromits.firmware.service.ClientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.support.NativeMessageHeaderAccessor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
+import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +71,12 @@ class OceanGromitsApplicationTests {
 		DEVICE_LEAVE,
 		DEVICE_JOIN
 	}
+	Principal TestPrincipal= new Principal() {
+		@Override
+		public String getName() {
+			return "name";
+		}
+	};
 
 	@Autowired
 	OceanGromitsApplicationTests(JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, ClientRepository clientRepository) {
@@ -168,6 +187,61 @@ class OceanGromitsApplicationTests {
 		ExampleToken=jwtTokenProvider.createToken(StringId,TestClient.getRoles());
 		assertEquals(ExampleToken,ReturnedToken);
 	}
+
+
+	//IndexController tests
+	@Test
+	void testPing(){
+		IndexController TestIndexController=new IndexController();
+		String ReturnedPing=TestIndexController.ping();
+		assertEquals("pong",ReturnedPing);
+	}
+
+	//SignallerController tests
+	@Test
+	void testsendSignal(){
+
+		SignallerController TestSignallerController=new SignallerController();
+		WebRTCMessage Testsignal=new WebRTCMessage();
+		SimpMessageHeaderAccessor TestheaderAccessor=SimpMessageHeaderAccessor.create();
+		TestheaderAccessor.setUser(TestPrincipal);
+		WebRTCMessage ReturnedSignal=TestSignallerController.sendSignal(Testsignal,TestheaderAccessor);
+		WebRTCMessage ExampleSignal=new WebRTCMessage();
+		ExampleSignal.setSender(TestheaderAccessor.getUser().getName());
+		assertEquals(ReturnedSignal.getSender(),ExampleSignal.getSender());//tests if the signal senders are the same
+																			//as can't test if signals are identical
+	}
+
+
+	//GromitsException tests
+	@Test
+	void testgetMessage(){
+		HttpStatus TesthttpStatus=HttpStatus.ACCEPTED;
+		GromitsException TestGromitsException=new GromitsException("message",TesthttpStatus);
+		String ReturnedMessage=TestGromitsException.getMessage();
+		assertEquals(ReturnedMessage,"message");
+
+	}
+	@Test
+	void testHttpStatus(){
+		HttpStatus TesthttpStatus=HttpStatus.ACCEPTED;
+		GromitsException TestGromitsException=new GromitsException("message",TesthttpStatus);
+		HttpStatus ReturnedHttpStatus=TestGromitsException.getHttpStatus();
+		assertEquals(ReturnedHttpStatus,TesthttpStatus);
+	}
+
+	//GromitsexceptionAdvice tests
+	@Test
+	void testgromitsForbiddenHandler(){
+		GromitsExceptionAdvice TestGromitsExceptionAdvice=new GromitsExceptionAdvice();
+		String ReturnedMessage=TestGromitsExceptionAdvice.gromitsForbiddenHandler(new GromitsException("message",HttpStatus.FORBIDDEN));
+		assertEquals(ReturnedMessage,"message");
+	}
+
+
+
+
+
 
 
 
