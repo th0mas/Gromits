@@ -1,4 +1,18 @@
-// Creates and Manages all our P2P Streams
+/*
+P2PStream is the main interface for creating and managing streams.
+
+It uses RTCStream (a simple abstraction over the native WebRTCConnection) to 
+establish the connections and provides a mechanism for signals to be sent and 
+received from them using the global application signaller.
+
+If possible, try and avoid touching RTCStream as that should be best kept as 
+thin a wrapper as possible over the native behaviour and just provide hooks
+for required communication.
+
+All stream objects are stored in the `peers` map, and signals passed to that
+based off the `sender` parameter in the Signal. The sender parameter is set
+server side *should* be secure to use.
+*/
 
 import { Signaller } from '../signal'
 import { RTCStream } from './RTCStream'
@@ -16,11 +30,6 @@ class P2PStream {
   localStream?: MediaStream
   setRemoteStream?: (a: MediaStream) => void
   connectionStatusCallback?: (a: any) => void
-
-  /*
-  Contains an array of our peers, peers[0] contains the default stream
-  that is displayed
-  */
   peers = new Map<string, RTCStream>()
   defaultPeer?: string
 
@@ -67,16 +76,29 @@ class P2PStream {
 
   handleDirectSignal(signal: Signal) {
     switch (signal.type) {
+      case "VIDEO_START":
+        this.handleJoin(signal)
+        break
+      case 'VIDEO_OFFER':
+        this.handleOffer(signal)
+        break
       case 'VIDEO_ANSWER':
-        // this.handleVideoAnswer(signal)
+        this.handleVideoAnswer(signal)
         break
       case 'NEW_ICE_CANDIDATE':
-        // this.handleNewICECandidate(signal)
+        this.handleNewICECandidate(signal)
         break
       default:
         break
     }
+  }
 
+  handleJoin(signal: Signal) {
+    this.peers.get(signal.sender)?.close()
+
+    let stream = this.createStream(signal)
+
+    stream.start()
   }
 
   handleDefaultJoin(signal: Signal) {
@@ -89,6 +111,16 @@ class P2PStream {
     stream.start()
   }
 
+  handleOffer(signal: Signal) {
+    if (this.peers.has(signal.sender)) {
+      this.peers.get(signal.sender)?.handleVideoOffer(signal.content)
+    } else {
+      let stream = this.createDefaultStream(signal)
+
+      stream.handleVideoOffer(signal.content)
+    }
+  }
+
   handleDefaultOffer(signal: Signal) {
     if (this.defaultPeer && this.peers.has(this.defaultPeer)) {
       this.peers.get(this.defaultPeer)?.handleVideoOffer(signal.content)
@@ -99,19 +131,43 @@ class P2PStream {
     }
   }
 
-  createDefaultStream(signal: Signal): RTCStream {
+  handleVideoAnswer(signal: Signal) {
+    if (!this.peers.has(signal.sender)) {
+      console.log(`Stream for ${signal.sender} not initialized: \n ${signal.toString()}`)
+    }
+
+    this.peers.get(signal.sender)?.handleVideoOffer(signal.content)
+  }
+
+  handleNewICECandidate(signal: Signal) {
+    if (!this.peers.has(signal.sender)) {
+      console.log(`Stream for ${signal.sender} not initialized: \n ${signal.toString()}`)
+    }
+
+    this.peers.get(signal.sender)?.handleNewICECandidate(signal.content)
+  }
+
+  createStream(signal: Signal): RTCStream {
     let stream = new RTCStream(
       (msg: Object) => this.sendSignal(msg, signal.sender),
       this.setError,
       function () { } // TODO: Add conn status reducer
     )
 
-    this.peers.set(signal.sender, stream)
-    this.defaultPeer = signal.sender
-    
     if (this.localStream) {
       stream.setLocalStream(this.localStream)
     }
+
+    return stream
+
+  }
+
+  createDefaultStream(signal: Signal): RTCStream {
+    let stream = this.createStream(signal)
+    this.peers.set(signal.sender, stream)
+    this.defaultPeer = signal.sender
+    
+    
 
     if (this.setRemoteStream) {
       stream.handleRemoteStream(this.setRemoteStream)

@@ -78,6 +78,12 @@ class RTCStream {
     }))
   }
 
+  handleVideoAnswer(answer: RTCSessionDescriptionInit | undefined) {
+    let desc = new RTCSessionDescription(answer)
+
+    this.peerConnection.setRemoteDescription(desc)
+  }
+
   handleICECandidateEvent(e: RTCPeerConnectionIceEvent) {
     if (e.candidate) {
       this.sendSignal({
