@@ -11,7 +11,8 @@ const initialState = {
   videoSrc: null,
   streamState: "",
   streamErr: null,
-  signalErr: null
+  signalErr: null,
+  beaconCallback: null,
 }
 
 const useVideoStream = (stream) => {
@@ -37,6 +38,11 @@ const useVideoStream = (stream) => {
         type: CONN_STATE_CHANGE,
         payload: status
       }))
+
+      dispatch({
+        type: 'BEACON_CALLBACK',
+        payload: () => p2pStream.sendDefaultVideoStreamBeacon()
+      })
     }
   }, [signaller, stream])
 

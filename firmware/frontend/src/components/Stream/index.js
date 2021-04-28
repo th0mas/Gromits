@@ -10,7 +10,7 @@ import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 const Stream = () => {
   let videoEl = useRef(null)
   let [localStream, setLocalStream] = useState()
-  let {videoSrc, streamErr} = useVideoStream(localStream)
+  let {videoSrc, streamErr, beaconCallback} = useVideoStream(localStream)
   let {err} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
@@ -30,6 +30,12 @@ const Stream = () => {
       video.srcObject = videoSrc || localStream
     }
   }, [videoSrc, localStream])
+
+  useEffect(() => {
+    if (beaconCallback) {
+      beaconCallback()
+    }
+  }, [beaconCallback])
 
   return <div className="h-screen w-screen overflow-hidden">
     <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>

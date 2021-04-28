@@ -22,6 +22,8 @@ const reducer = (state, action) => {
 
     case CONN_STATE_CHANGE:
       return stateChangeReducer(state, action)
+    case 'BEACON_CALLBACK':
+      return {...state, beaconCallback: action.payload}
 
     default:
       return state

@@ -60,6 +60,12 @@ class P2PStream {
     this.peers.forEach((peer) => peer.setConnectionCallback(f))
   }
 
+  sendDefaultVideoStreamBeacon(): void {
+    this.signaller.send({
+      type: 'VIDEO_JOIN',
+    })
+  }
+
   // Presume only the default stream will happen on the default channel
   handleSignal(signal: Signal) {
     switch (signal.type) {
@@ -149,7 +155,7 @@ class P2PStream {
 
   createStream(signal: Signal): RTCStream {
     let stream = new RTCStream(
-      (msg: Object) => this.sendSignal(msg, signal.sender),
+      (msg: Signal) => this.sendSignal(msg, signal.sender),
       this.setError,
       function () { } // TODO: Add conn status reducer
     )
@@ -170,13 +176,20 @@ class P2PStream {
     
 
     if (this.setRemoteStream) {
+      // This is worded poorly and only registers a callback
       stream.handleRemoteStream(this.setRemoteStream)
     }
 
     return stream
   }
 
-  sendSignal(msg: Object, to: string) {
+  sendSignal(msg: Signal, to: string | undefined) {
+    // this is really hacky :/
+    // We don't want to send default stream offers on private channels
+    // This intercepts the message and removes the 'to' parameter.
+    if (msg.type === 'VIDEO_OFFER' && to === this.defaultPeer) {
+      to = undefined
+    }
     this.signaller.send(msg, to)
   }
 
