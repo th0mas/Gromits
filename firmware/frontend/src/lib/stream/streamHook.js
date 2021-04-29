@@ -11,33 +11,61 @@ const initialState = {
   videoSrc: null,
   streamState: "",
   streamErr: null,
-  signalErr: null
+  signalErr: null,
+  beaconCallback: null,
+  connectTo: null,
+  setLocalStream: null
 }
 
 const useVideoStream = () => {
   let [state, dispatch] = useReducer(reducer, initialState)
   let {signaller} = useContext(SignalContext)
 
+  // Set our main stream
   useEffect(() => {
-    if (signaller) {
-      let p2pStream = new P2PStream(signaller, (err) => dispatch({
-        type: VIDEO_ERR,
-        payload: err
-      }))
-
-      p2pStream.open((videoSrc) => dispatch({
+    const remoteStreamCallback = (videoSrc) => {
+      console.log("Dispatching new video stream!")
+      dispatch({
         type: NEW_VIDEO_SRC,
         payload: videoSrc
-      }))
+      })}
 
-      p2pStream.setConnectionStatusCallback((status) => dispatch({
-        type: CONN_STATE_CHANGE,
-        payload: status
-      }))
+    const setErrCallback = (err) => dispatch({
+      type: VIDEO_ERR,
+      payload: err
+    })
+
+    const setConnectionStatusCallback = (status) => dispatch({
+      type: CONN_STATE_CHANGE,
+      payload: status
+    })
+
+    if (signaller) {
+      console.log('creating p2p stream!')
+      let p2pStream = new P2PStream(signaller, remoteStreamCallback, 
+        setConnectionStatusCallback, setErrCallback)
+
+      dispatch({
+        type: 'LOCAL_STREAM_CALLBACK',
+        payload: (stream) => p2pStream.setLocalStream(stream)
+      })
+
+      dispatch({
+        type: 'BEACON_CALLBACK',
+        payload: () => p2pStream.sendDefaultVideoStreamBeacon()
+      })
+
+      dispatch({
+        type: 'CONNECT_TO_CALLBACK',
+        payload: (client) => {
+          console.log(`starting to ${client}`)
+          p2pStream.connectToVideo(client)
+        }
+      })
     }
   }, [signaller])
 
-  return state // TODO: Refactor sigErr into state
+  return state
 }
 
 export default useVideoStream
