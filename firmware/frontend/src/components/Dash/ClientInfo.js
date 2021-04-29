@@ -15,7 +15,8 @@ export const ClientInfo = ({ client, getData }) => {
   const authorizeClient = () => {
     post("admin/authorize_client", {
       name: client.name
-    }, token).then(getData(token))
+    }, token)
+    .then(setTimeout(() => getData(token), 250))
   }
 
   let authed = getDeveloperInfo(client).includes("VIDEO")

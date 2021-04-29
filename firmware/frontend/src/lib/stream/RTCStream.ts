@@ -1,11 +1,16 @@
+import { Signal } from "./P2PStream"
 
 class RTCStream {
   sendSignal: Function
   setError: Function
   localStream?: MediaStream
-  peerConnection: RTCPeerConnection
+  pc: RTCPeerConnection
   setRemoteStream?: (stream: MediaStream) => void 
   onConnectionStateChange!: (e: Event) => void
+
+  makingOffer: boolean = false
+  ignoreOffer: boolean = false
+  polite: boolean = true
 
   constructor (sendSignal: Function, setError: Function,
     onConnectionStateChange: (e: string) => void
@@ -15,7 +20,7 @@ class RTCStream {
     
     this.setConnectionCallback(onConnectionStateChange)
 
-    this.peerConnection = new RTCPeerConnection({
+    this.pc = new RTCPeerConnection({
       iceServers: [
         {
           urls: "stun:stun2.l.google.com:19302" // Sorry Google - we should use servers we actually own
@@ -26,30 +31,61 @@ class RTCStream {
       ]
     })
 
-    this.peerConnection.onicecandidate = (e) => this.handleICECandidateEvent(e)
-    this.peerConnection.ontrack = (e) => this.handleTrackEvent(e)
-    this.peerConnection.onnegotiationneeded = () => this.handleNegotiationNeeded()
-    this.peerConnection.onconnectionstatechange = (e) => this.onConnectionStateChange(e)
+    this.pc.onicecandidate = (e) => this.handleICECandidateEvent(e)
+    this.pc.ontrack = (e) => this.handleTrackEvent(e)
+    this.pc.onnegotiationneeded = () => this.handleNegotiationNeeded()
+    this.pc.onconnectionstatechange = (e) => this.onConnectionStateChange(e)
   }
 
   close(): void {
-    if (this.peerConnection) {
-      return this.peerConnection.close()
+    if (this.pc) {
+      return this.pc.close()
     }
   }
 
-  start(): void{
+  start(): void {
     if (this.localStream) {
       this.localStream.getVideoTracks().forEach(
-        track => this.peerConnection.addTrack(track, this.localStream!)
+        track => this.pc.addTrack(track, this.localStream!)
       )
-    }
+      }
+  }
 
-    this.handleNegotiationNeeded()
+  async handleSignal(signal: Signal) {
+    try {
+      if (signal.type === "VIDEO_OFFER" || signal.type === "VIDEO_ANSWER") {
+        const offerCollision = (signal.type === "VIDEO_OFFER") && 
+          (this.makingOffer || this.pc.signalingState !== "stable")
+        
+        this.ignoreOffer = !this.polite && offerCollision
+
+        if (this.ignoreOffer) {return}
+
+        await this.pc.setRemoteDescription(signal.content)
+
+        if (signal.type === "VIDEO_OFFER") {
+          // @ts-ignore
+          await this.pc.setLocalDescription()
+          this.sendSignal({type: "VIDEO_ANSWER", content: this.pc.localDescription})
+        }
+      } else if (signal.type === "NEW_ICE_CANDIDATE") {
+        try {
+          await this.pc.addIceCandidate(signal.content)
+        } catch (err) {
+          if (!this.ignoreOffer) {throw err}
+        }
+      }
+    } catch(err) {
+      console.log(err)
+    }
   }
 
   handleRemoteStream(f: (stream: MediaStream) => void) {
     this.setRemoteStream = f
+  }
+
+  setImpolite() {
+    this.polite = false;
   }
 
   setLocalStream(stream: MediaStream) {
@@ -58,30 +94,9 @@ class RTCStream {
 
   setConnectionCallback(callback: (state: string) => void): void {
     this.onConnectionStateChange = 
-      (_e: Event) => callback(this.peerConnection.connectionState)
+      (_e: Event) => callback(this.pc.connectionState)
 
     callback("new")
-  }
-
-  handleVideoOffer(offer: RTCSessionDescriptionInit) {
-    this.setError(null)
-
-    let desc = new RTCSessionDescription(offer)
-    this.peerConnection.setRemoteDescription(desc)
-    .then(() => this.localStream?.getVideoTracks().forEach(
-      track => this.peerConnection.addTrack(track, this.localStream!)))
-    .then(() => this.peerConnection.createAnswer())
-    .then((ans) => this.peerConnection.setLocalDescription(ans))
-    .then(() => this.sendSignal({
-      type: 'VIDEO_ANSWER',
-      content: this.peerConnection.localDescription
-    }))
-  }
-
-  handleVideoAnswer(answer: RTCSessionDescriptionInit | undefined) {
-    let desc = new RTCSessionDescription(answer)
-
-    this.peerConnection.setRemoteDescription(desc)
   }
 
   handleICECandidateEvent(e: RTCPeerConnectionIceEvent) {
@@ -92,12 +107,6 @@ class RTCStream {
       })
     }
   }
-
-  handleNewICECandidate(candidate: RTCIceCandidateInit) {
-    if (this.peerConnection) {
-      this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-    }
-  }
   
   // Used when recieving remote tracks
   handleTrackEvent(e: RTCTrackEvent) {
@@ -106,15 +115,20 @@ class RTCStream {
     if (this.setRemoteStream) { this.setRemoteStream(e.streams[0]) }
   }
 
-  handleNegotiationNeeded() {
-    this.peerConnection.createOffer().then(offer => {
-      return this.peerConnection.setLocalDescription(offer)
-    }).then(() => {
-      this.sendSignal({
-        type: 'VIDEO_OFFER',
-        content: this.peerConnection.localDescription
+  async handleNegotiationNeeded() {
+    try {
+      this.makingOffer = true;
+      // @ts-ignore
+      await this.pc.setLocalDescription()
+      this.sendSignal({ 
+        type: "VIDEO_OFFER", 
+        content: this.pc.localDescription 
       })
-    })
+    } catch(err) {
+      console.error(err);
+    } finally {
+      this.makingOffer = false;
+    }
   }
 }
 

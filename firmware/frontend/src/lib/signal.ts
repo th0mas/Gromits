@@ -17,7 +17,7 @@ export const VIDEO_OFFER = 'VIDEO_OFFER'
 export const VIDEO_ANSWER = 'VIDEO_ANSWER'
 export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
 
-enum Channel { 
+export enum Channel { 
   Private,
   User
 } 
@@ -43,6 +43,7 @@ class Signaller {
     this.errCallback = errCallback
     this.authErrCallback = authErrCallback
     this.setTokenCallback = setTokenCallback
+    this.onConnect = onConnect
       
     this.stompClient = new Client()
     // @ts-ignore

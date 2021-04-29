@@ -39,7 +39,7 @@ public class SignallerController {
     public void sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
         signal.setSender(headerAccessor.getUser().getName());
 
-        if (signal.getTo() != null && !"".equals(signal.getTo())) {
+        if (signal.getTo() == null || "".equals(signal.getTo())) {
             simpMessagingTemplate.convertAndSend("/msg/private", signal);
             return;
         }

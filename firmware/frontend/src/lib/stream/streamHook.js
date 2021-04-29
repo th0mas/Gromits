@@ -21,18 +21,21 @@ const useVideoStream = (stream) => {
 
   // Set our main stream
   useEffect(() => {
+    const remoteStreamCallback = (videoSrc) => dispatch({
+      type: NEW_VIDEO_SRC,
+      payload: videoSrc
+    })
+
+    const setErrCallback = (err) => dispatch({
+      type: VIDEO_ERR,
+      payload: err
+    })
+
     if (signaller && stream) {
-      let p2pStream = new P2PStream(signaller, (err) => dispatch({
-        type: VIDEO_ERR,
-        payload: err
-      }))
+      let p2pStream = new P2PStream(signaller, remoteStreamCallback, setErrCallback)
+
 
       p2pStream.setLocalStream(stream)
-
-      p2pStream.setRemoteStreamCallback((videoSrc) => dispatch({
-        type: NEW_VIDEO_SRC,
-        payload: videoSrc
-      }))
 
       p2pStream.setConnectionStatusCallback((status) => dispatch({
         type: CONN_STATE_CHANGE,

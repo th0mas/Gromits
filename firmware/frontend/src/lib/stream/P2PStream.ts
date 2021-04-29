@@ -14,7 +14,7 @@ based off the `sender` parameter in the Signal. The sender parameter is set
 server side *should* be secure to use.
 */
 
-import { Signaller } from '../signal'
+import { Signaller, Channel } from '../signal'
 import { RTCStream } from './RTCStream'
 
 export type Signal = {
@@ -39,6 +39,9 @@ class P2PStream {
     this.signaller = signaller
     this.setStream = setStream
     this.setError = setError
+
+    signaller.registerRTCCallback((signal) => this.handleSignal(signal), Channel.Private)
+    signaller.registerRTCCallback((signal) => this.handleDirectSignal(signal), Channel.User)
 
   }
 
@@ -76,7 +79,7 @@ class P2PStream {
         this.handleDefaultOffer(signal)
         break
       default:
-        console.log(`Unknown message: \n ${signal}`)
+        console.log(`Unknown message: \n ${JSON.stringify(signal)}`)
     }
   }
 
@@ -114,26 +117,28 @@ class P2PStream {
 
     let stream = this.createDefaultStream(signal)
 
+    stream.setImpolite()
     stream.start()
   }
 
   handleOffer(signal: Signal) {
     if (this.peers.has(signal.sender)) {
-      this.peers.get(signal.sender)?.handleVideoOffer(signal.content)
-    } else {
-      let stream = this.createDefaultStream(signal)
-
-      stream.handleVideoOffer(signal.content)
+      this.peers.get(signal.sender)?.handleSignal(signal)
     }
+    let stream = this.createDefaultStream(signal)
+
+    stream.start()
+    stream.handleSignal(signal)
   }
 
   handleDefaultOffer(signal: Signal) {
     if (this.defaultPeer && this.peers.has(this.defaultPeer)) {
-      this.peers.get(this.defaultPeer)?.handleVideoOffer(signal.content)
+      this.peers.get(this.defaultPeer)?.handleSignal(signal)
     } else {
       let stream = this.createDefaultStream(signal)
 
-      stream.handleVideoOffer(signal.content)
+      stream.start()
+      stream.handleSignal(signal)
     }
   }
 
@@ -142,7 +147,7 @@ class P2PStream {
       console.log(`Stream for ${signal.sender} not initialized: \n ${signal.toString()}`)
     }
 
-    this.peers.get(signal.sender)?.handleVideoOffer(signal.content)
+    this.peers.get(signal.sender)?.handleSignal(signal)
   }
 
   handleNewICECandidate(signal: Signal) {
@@ -150,7 +155,7 @@ class P2PStream {
       console.log(`Stream for ${signal.sender} not initialized: \n ${signal.toString()}`)
     }
 
-    this.peers.get(signal.sender)?.handleNewICECandidate(signal.content)
+    this.peers.get(signal.sender)?.handleSignal(signal)
   }
 
   createStream(signal: Signal): RTCStream {
