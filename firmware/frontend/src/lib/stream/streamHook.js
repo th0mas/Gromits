@@ -13,9 +13,11 @@ const initialState = {
   streamErr: null,
   signalErr: null,
   beaconCallback: null,
+  connectTo: null,
+  setLocalStream: null
 }
 
-const useVideoStream = (stream) => {
+const useVideoStream = () => {
   let [state, dispatch] = useReducer(reducer, initialState)
   let {signaller} = useContext(SignalContext)
 
@@ -38,20 +40,32 @@ const useVideoStream = (stream) => {
       payload: status
     })
 
-    if (signaller && stream) {
+    if (signaller) {
+      console.log('creating p2p stream!')
       let p2pStream = new P2PStream(signaller, remoteStreamCallback, 
         setConnectionStatusCallback, setErrCallback)
 
-      p2pStream.setLocalStream(stream)
+      dispatch({
+        type: 'LOCAL_STREAM_CALLBACK',
+        payload: (stream) => p2pStream.setLocalStream(stream)
+      })
 
       dispatch({
         type: 'BEACON_CALLBACK',
         payload: () => p2pStream.sendDefaultVideoStreamBeacon()
       })
-    }
-  }, [signaller, stream])
 
-  return state // TODO: Refactor sigErr into state
+      dispatch({
+        type: 'CONNECT_TO_CALLBACK',
+        payload: (client) => {
+          console.log(`starting to ${client}`)
+          p2pStream.connectToVideo(client)
+        }
+      })
+    }
+  }, [signaller])
+
+  return state
 }
 
 export default useVideoStream

@@ -9,15 +9,15 @@ import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let [localStream, setLocalStream] = useState()
-  let {videoSrc, streamErr, beaconCallback} = useVideoStream(localStream)
+  let [webcamStream, setWebcamStream] = useState()
+  let {videoSrc, streamErr, beaconCallback, setLocalStream} = useVideoStream()
   let {err, connectionStatus} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({video: true})
-      .then(s => setLocalStream(s))
+      .then(s => setWebcamStream(s))
     }, [])
 
   useEffect(() => {
@@ -26,16 +26,17 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
-    if (videoSrc || localStream) {
-      video.srcObject = videoSrc || localStream
+    if (videoSrc || webcamStream) {
+      video.srcObject = videoSrc || webcamStream
     }
-  }, [videoSrc, localStream])
+  }, [videoSrc, webcamStream])
 
   useEffect(() => {
-    if (beaconCallback && connectionStatus) {
+    if (beaconCallback && connectionStatus && setLocalStream) {
+      setLocalStream(webcamStream)
       beaconCallback()
     }
-  }, [beaconCallback, connectionStatus])
+  }, [beaconCallback, connectionStatus, setLocalStream, webcamStream])
 
   return <div className="h-screen w-screen overflow-hidden">
     <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>

@@ -24,7 +24,10 @@ const reducer = (state, action) => {
       return stateChangeReducer(state, action)
     case 'BEACON_CALLBACK':
       return {...state, beaconCallback: action.payload}
-
+    case 'CONNECT_TO_CALLBACK':
+      return {...state, connectTo: action.payload}
+    case 'LOCAL_STREAM_CALLBACK':
+      return {...state, setLocalStream: action.payload}
     default:
       return state
   }

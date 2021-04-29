@@ -46,6 +46,19 @@ class P2PStream {
 
   }
 
+  connectToVideo(client: string) {
+    let stream = this.createStream({sender: client})
+
+    // Explicitly set we want to recieve video from this client
+    
+    stream.handleRemoteStream(this.setStream)
+    stream.start()
+
+    this.signaller.send({
+      type: "VIDEO_START"
+    }, client)
+  }
+
   setLocalStream(stream: MediaStream) {
     this.localStream = stream
 
@@ -108,6 +121,11 @@ class P2PStream {
 
     let stream = this.createStream(signal)
 
+    if (this.localStream) {
+      stream.setLocalStream(this.localStream)
+    }
+    
+    stream.setImpolite()
     stream.start()
   }
 
@@ -125,11 +143,12 @@ class P2PStream {
   handleOffer(signal: Signal) {
     if (this.peers.has(signal.sender)) {
       this.peers.get(signal.sender)?.handleSignal(signal)
+    } else {
+      let stream = this.createStream(signal)
+      
+      stream.start()
+      stream.handleSignal(signal)
     }
-    let stream = this.createDefaultStream(signal)
-
-    stream.start()
-    stream.handleSignal(signal)
   }
 
   handleDefaultOffer(signal: Signal) {
@@ -159,16 +178,14 @@ class P2PStream {
     this.peers.get(signal.sender)?.handleSignal(signal)
   }
 
-  createStream(signal: Signal): RTCStream {
+  createStream(signal: {sender: string}): RTCStream {
     let stream = new RTCStream(
       (msg: Signal) => this.sendSignal(msg, signal.sender),
       this.setError,
       this.connectionStatusCallback,
     )
 
-    if (this.localStream) {
-      stream.setLocalStream(this.localStream)
-    }
+    this.peers.set(signal.sender, stream)
 
     return stream
 
@@ -180,6 +197,10 @@ class P2PStream {
     this.defaultPeer = signal.sender
 
     stream.handleRemoteStream(this.setStream)
+
+    if (this.localStream) {
+      stream.setLocalStream(this.localStream)
+    }
 
     return stream
   }

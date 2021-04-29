@@ -8,7 +8,7 @@ const getDeveloperInfo = (client) => {
   return roles.join(" ")
 }
 
-export const ClientInfo = ({ client, getData }) => {
+export const ClientInfo = ({ client, getData,  setPeer}) => {
 
   let [token] = useContext(TokenContext)
 
@@ -39,7 +39,7 @@ export const ClientInfo = ({ client, getData }) => {
 
       {authed ?
         <button className="bg-red-400 text-white active:bg-green-500 font-bold uppercase text-sm px-6 py-3 rounded-lg shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button"
-          >
+          onClick={() => setPeer(client.name)}>
           Watch
         </button>
         :
