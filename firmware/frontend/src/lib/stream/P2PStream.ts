@@ -17,7 +17,7 @@ server side *should* be secure to use.
 import { Signaller } from '../signal'
 import { RTCStream } from './RTCStream'
 
-type Signal = {
+export type Signal = {
   type: string,
   content: Object,
   sender: string

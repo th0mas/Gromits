@@ -11,7 +11,7 @@ const Stream = () => {
   let videoEl = useRef(null)
   let [localStream, setLocalStream] = useState()
   let {videoSrc, streamErr, beaconCallback} = useVideoStream(localStream)
-  let {err} = useContext(SignalContext)
+  let {err, connectionStatus} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
 
@@ -32,10 +32,10 @@ const Stream = () => {
   }, [videoSrc, localStream])
 
   useEffect(() => {
-    if (beaconCallback) {
+    if (beaconCallback && connectionStatus) {
       beaconCallback()
     }
-  }, [beaconCallback])
+  }, [beaconCallback, connectionStatus])
 
   return <div className="h-screen w-screen overflow-hidden">
     <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>

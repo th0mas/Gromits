@@ -8,6 +8,7 @@ const SignalProvider = ({url, children}) => {
   let [sigErr, setSigErr] = useState("")
   let [token, setToken] = useContext(TokenContext)
   let [signaller, setSignaller] = useState()
+  let [conState, setConState] = useState(false)
 
   const authError = useCallback(() => {
     console.log("Clearing token")
@@ -16,7 +17,7 @@ const SignalProvider = ({url, children}) => {
 
   const initializeSignaller = useCallback(() => {
     if (!signaller) {
-      const s = new Signaller(url, (err) => setSigErr(err), authError, setToken)
+      const s = new Signaller(url, (err) => setSigErr(err), authError, setToken, () => setConState(true))
       setSignaller(s)
     }
   }, [url, signaller, setToken, authError])
@@ -36,7 +37,7 @@ const SignalProvider = ({url, children}) => {
     [initializeSignaller, token, signaller]) 
 
   return (
-    <SignalContext.Provider value={{signaller, err: sigErr}}>
+    <SignalContext.Provider value={{signaller, err: sigErr, connectionStatus: conState}}>
       {children}
     </SignalContext.Provider>
   )

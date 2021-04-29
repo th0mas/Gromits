@@ -8,6 +8,7 @@ Other parts of the application should only need to use the `send(obj)` method.
 import SockJS from 'sockjs-client'
 import {Client, IFrame} from "@stomp/stompjs";
 import { clientId, hasRole } from './tokenUtils';
+import { Signal } from './stream/P2PStream'
 
 
 export const DEVICE_JOIN = 'DEVICE_JOIN'
@@ -27,6 +28,7 @@ class Signaller {
   errCallback
   authErrCallback: () => void
   setTokenCallback: (t: string) => void;
+  onConnect?: () => void 
   token?: string
   clientId?: string
 
@@ -35,7 +37,9 @@ class Signaller {
 
 
   // Creates our socket and stompJs clients
-  constructor(url: string, errCallback: (e: string) => void, authErrCallback: () => void, setTokenCallback: (t: string) => void) {
+  constructor(url: string, errCallback: (e: string) => void, authErrCallback: () => void, setTokenCallback: (t: string) => void,
+    onConnect: () => void | undefined
+  ) {
     this.errCallback = errCallback
     this.authErrCallback = authErrCallback
     this.setTokenCallback = setTokenCallback
@@ -115,6 +119,10 @@ class Signaller {
     //   destination: "/webrtc/join",
     //   body: JSON.stringify(payload)
     // })
+
+    if (this.onConnect) {
+      this.onConnect()
+    }
   }
 
   registerSubscriptions() {
