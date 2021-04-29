@@ -28,17 +28,18 @@ class P2PStream {
   setStream: (stream: MediaStream) => void
   setError: (a: string | Error) => void
   localStream?: MediaStream
-  setRemoteStream?: (a: MediaStream) => void
-  connectionStatusCallback?: (a: any) => void
+  connectionStatusCallback: (a: any) => void
   peers = new Map<string, RTCStream>()
   defaultPeer?: string
 
   constructor(signaller: Signaller, setStream: (a: MediaStream) => void,
+    setConnStatus: (a: any) => void,
     setError: (a: string | Error) => void
   ) {
     this.signaller = signaller
     this.setStream = setStream
     this.setError = setError
+    this.connectionStatusCallback = setConnStatus
 
     signaller.registerRTCCallback((signal) => this.handleSignal(signal), Channel.Private)
     signaller.registerRTCCallback((signal) => this.handleDirectSignal(signal), Channel.User)
@@ -52,7 +53,7 @@ class P2PStream {
   }
 
   setRemoteStreamCallback(f: (a: MediaStream) => void) {
-    this.setRemoteStream = f
+    this.setStream = f
 
     this.peers.forEach((peer) => peer.handleRemoteStream(f))
   }
@@ -162,7 +163,7 @@ class P2PStream {
     let stream = new RTCStream(
       (msg: Signal) => this.sendSignal(msg, signal.sender),
       this.setError,
-      function () { } // TODO: Add conn status reducer
+      this.connectionStatusCallback,
     )
 
     if (this.localStream) {
@@ -177,13 +178,8 @@ class P2PStream {
     let stream = this.createStream(signal)
     this.peers.set(signal.sender, stream)
     this.defaultPeer = signal.sender
-    
-    
 
-    if (this.setRemoteStream) {
-      // This is worded poorly and only registers a callback
-      stream.handleRemoteStream(this.setRemoteStream)
-    }
+    stream.handleRemoteStream(this.setStream)
 
     return stream
   }

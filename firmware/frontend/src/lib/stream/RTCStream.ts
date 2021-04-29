@@ -94,8 +94,10 @@ class RTCStream {
 
   setConnectionCallback(callback: (state: string) => void): void {
     this.onConnectionStateChange = 
-      (_e: Event) => callback(this.pc.connectionState)
-
+      (_e: Event) => {
+        console.log(this.pc.connectionState)
+        callback(this.pc.connectionState)
+      }
     callback("new")
   }
 
