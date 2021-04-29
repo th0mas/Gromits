@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useContext} from 'react'
+import React, {useEffect, useRef, useContext, useState, useCallback} from 'react'
 import InfoHolder from "../InfoHolder"
 import InfoBox from "../InfoBox";
 
@@ -9,10 +9,16 @@ import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
-  let {videoSrc, streamState, streamErr} = useVideoStream()
-  let {err} = useContext(SignalContext)
+  let [webcamStream, setWebcamStream] = useState()
+  let {videoSrc, streamErr, beaconCallback, setLocalStream} = useVideoStream()
+  let {err, connectionStatus} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({video: true})
+      .then(s => setWebcamStream(s))
+    }, [])
 
   useEffect(() => {
     let video = videoEl.current
@@ -20,14 +26,17 @@ const Stream = () => {
     if (!videoEl.current) { // Only run this effect if the ref is assigned
       return
     }
-    videoSrc
-      ? video.srcObject = videoSrc
-      : navigator.mediaDevices.getUserMedia({video: true})
-        .then((stream) => {
-          video.srcObject = stream
-        })
+    if (videoSrc || webcamStream) {
+      video.srcObject = videoSrc || webcamStream
+    }
+  }, [videoSrc, webcamStream])
 
-  }, [videoSrc])
+  useEffect(() => {
+    if (beaconCallback && connectionStatus && setLocalStream) {
+      setLocalStream(webcamStream)
+      beaconCallback()
+    }
+  }, [beaconCallback, connectionStatus, setLocalStream, webcamStream])
 
   return <div className="h-screen w-screen overflow-hidden">
     <video autoPlay ref={videoEl} className="h-screen w-screen object-cover"/>

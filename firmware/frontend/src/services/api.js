@@ -26,9 +26,16 @@ const useResource = (query, ...params) => {
           headers: createHeaders(token)
         })
 
-        const json = await res.json()
-        setData(json)
-        setIsLoading(false)
+        if (res.status >= 200 && res.status < 300) {
+          const json = await res.json()
+          setData(json)
+          setIsLoading(false)
+          setError(null)
+        } else {
+          throw new Error("Status code: " + res.status)
+        }
+
+        
       } catch (err) {
         setIsLoading(false)
         setError(err)
@@ -43,14 +50,30 @@ const useResource = (query, ...params) => {
 
 }
 
-export const post = (resource, payload) => {
+export const post = (resource, payload, token) => {
   let reqUrl = `${url}${resource}/`
   return fetch(reqUrl, {
     method: 'POST',
-    headers: createHeaders(),
+    headers: createHeaders(token),
     body: JSON.stringify(payload)
   }).then(
     (response => response.json())
+  )
+}
+
+export const get = (resource, token) => {
+  let reqUrl = `${url}${resource}/`
+  return fetch(reqUrl, {
+    method: 'GET',
+    headers: createHeaders(token)
+  }).then(
+    r => {
+      if (r.status >= 200 && r.status < 300) {
+        return r.json()
+      } else {
+        throw new Error("Status code:" + r.status)
+      }
+    }
   )
 }
 

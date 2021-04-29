@@ -5,6 +5,7 @@ import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,10 +20,10 @@ public class SimpClientService {
         this.simpUserRegistry = simpUserRegistry;
     }
 
-    public List<String> getClients() {
+    public List<Principal> getClients() {
         Set<SimpUser> users = simpUserRegistry.getUsers();
         return users.stream()
-                .map(SimpUser::getName)
+                .map(SimpUser::getPrincipal)
                 .collect(Collectors.toList());
     }
 

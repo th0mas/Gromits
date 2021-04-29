@@ -2,24 +2,29 @@ import {useState, useEffect} from 'react'
 
 const useToken = () => {
   let [token, setToken] = useState("")
+  let [tokenLoaded, setTokenLoaded] = useState(false)
 
   const getToken = () => {
-    let t = localStorage.getItem('token')
-
-    t && setToken(t)
+    return localStorage.getItem('token')
   }
 
   const updateToken = (token) => {
-    localStorage.setItem('token', token)
+    if (token) {
+      localStorage.setItem('token', token)
+    }
     setToken(token)
   }
 
   useEffect(() => {
     console.log('you should only see this once')
-    getToken()
+    let t = getToken()
+
+    t ? setToken(t) : setToken(null)
+
+    setTokenLoaded(true)
   }, [])
 
-  return [token, updateToken]
+  return [token, updateToken, tokenLoaded]
 
 }
 

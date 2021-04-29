@@ -11,3 +11,5 @@ export const decodeToken = (rawToken) => {
 }
 
 export const hasRole = (token, role) => decodeToken(token).auth.includes(role)
+
+export const clientId = (token) => decodeToken(token).sub

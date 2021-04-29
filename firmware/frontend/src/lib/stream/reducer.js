@@ -21,8 +21,22 @@ const reducer = (state, action) => {
       return {...state, videoSrc: action.payload}
 
     case CONN_STATE_CHANGE:
-      return {...state, streamState: action.payload}
+      return stateChangeReducer(state, action)
+    case 'BEACON_CALLBACK':
+      return {...state, beaconCallback: action.payload}
+    case 'CONNECT_TO_CALLBACK':
+      return {...state, connectTo: action.payload}
+    case 'LOCAL_STREAM_CALLBACK':
+      return {...state, setLocalStream: action.payload}
+    default:
+      return state
+  }
+}
 
+const stateChangeReducer = (state, action) => {
+  switch (action.payload) {
+    case "disconnected":
+      return {...state, videoSrc: null}
     default:
       return state
   }
