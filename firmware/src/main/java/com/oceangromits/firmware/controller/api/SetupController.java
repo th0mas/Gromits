@@ -2,7 +2,6 @@ package com.oceangromits.firmware.controller.api;
 
 import com.oceangromits.firmware.exceptions.GromitsException;
 import com.oceangromits.firmware.model.Client;
-import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.model.TokenMessage;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.service.ClientService;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 
 /*
 Contains the api methods for managing the server and security lifecycle.

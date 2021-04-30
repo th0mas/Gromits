@@ -9,8 +9,9 @@ We need a simple way to check if Gromits are accessible - this seems like a good
 @RestController()
 public class IndexController {
     @GetMapping("/ping")
-    String ping() {
+    public String ping() {
         return "pong";
-    }
+    }//Made this method public as I don't think it should mess things up?
+                                            //change back if needed, only impacts 1 test
 
 }

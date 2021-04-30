@@ -33,7 +33,7 @@ public class AdminController {
      */
     @PostMapping("/login")
     public TokenMessage login(@RequestBody Client client) {
-        return new TokenMessage(client.getName(), clientService.signin(client.getName(), client.getPassword()));
+        return new TokenMessage(client.getName(), clientService.signIn(client.getName(), client.getPassword()));
     }
 
     /*
@@ -41,11 +41,8 @@ public class AdminController {
      */
     @PostMapping("/authorize_client")
     public Client authorizeClient(@RequestBody Client client) {
-        TokenMessage message = new TokenMessage();
-        message.setClientID(client.getName());
-        message.setToken(clientService.genClientVideoToken(client.getName()));
-
-        simpMessagingTemplate.convertAndSendToUser(client.getName(), "/signal/me", message);
+        TokenMessage message = new TokenMessage(client.getName(), clientService.genClientVideoToken(client.getName()));
+        simpMessagingTemplate.convertAndSendToUser(client.getName(), "/queue/message", message);
         return client;
     }
 

@@ -13,27 +13,30 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Service
 public class ClientService {
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public ClientService(ClientRepository clientRepository, PasswordEncoder passwordEncoder,
+                         JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager) {
+        this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationManager = authenticationManager;
+    }
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    public String signin(String username, String password) {
+    public String signIn(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             return jwtTokenProvider.createToken(username, clientRepository.findByName(username).getRoles());
@@ -45,7 +48,7 @@ public class ClientService {
     public String createAdmin(Client client) {
         client.setPassword(passwordEncoder.encode(client.getPassword()));
         client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
-        clientRepository.save(client);
+        clientRepository.save(client);//commenting out fixes test
 
         return jwtTokenProvider.createToken(client.getName(), client.getRoles());
     }

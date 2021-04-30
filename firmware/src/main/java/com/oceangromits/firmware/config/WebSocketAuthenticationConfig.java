@@ -1,9 +1,6 @@
 package com.oceangromits.firmware.config;
 
-import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.security.JwtTokenProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -15,7 +12,6 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -28,7 +24,6 @@ import java.util.Objects;
 public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtTokenProvider jwtTokenProvider;
-    public static final Logger logger = LoggerFactory.getLogger(WebSocketAuthenticationConfig.class);
 
     @Autowired
     public WebSocketAuthenticationConfig(JwtTokenProvider jwtTokenProvider) {

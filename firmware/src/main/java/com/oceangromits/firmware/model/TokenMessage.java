@@ -1,22 +1,13 @@
 package com.oceangromits.firmware.model;
 
-public class TokenMessage {
-    String clientID;
+public class TokenMessage extends Message {
     String token;
 
     public TokenMessage() {}
 
     public TokenMessage(String clientID, String token) {
-        this.clientID = clientID;
+        super("TOKEN", clientID);
         this.token = token;
-    }
-
-    public String getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
     }
 
     public String getToken() {

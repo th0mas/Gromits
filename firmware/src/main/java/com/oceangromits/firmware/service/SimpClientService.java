@@ -26,9 +26,8 @@ public class SimpClientService {
 
     public List<Principal> getClients() {
         Set<SimpUser> users = simpUserRegistry.getUsers();
-        return users.stream().map(user -> user.getPrincipal())
-//                .stream()
-//                .map(SimpUser::getName)
+        return users.stream()
+                .map(SimpUser::getPrincipal)
                 .collect(Collectors.toList());
     }
 

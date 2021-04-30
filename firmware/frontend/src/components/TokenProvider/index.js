@@ -3,17 +3,19 @@ import {TokenContext} from "../../contexts";
 import { post } from '../../services/api';
 import useToken from "../../services/token";
 
+const deviceId = "gromit_" + Math.random().toString(36).substring(7)
+
 const TokenProvider = ({children}) => {
-  let [token, setToken] = useToken()
+  let [token, setToken, tokenLoaded] = useToken()
 
   useEffect(() => {
-    if (token === "INVALID") {
+    if (!token && tokenLoaded) {
       console.log("Resetting token...")
       post("client/register", {
-        name: "gromit_test"
+        name: deviceId
       }).then(r => setToken(r.token))
     }
-  }, [token])
+  }, [token, setToken, tokenLoaded])
 
   return <TokenContext.Provider value={[token, setToken]}>
     {children}

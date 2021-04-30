@@ -1,7 +1,7 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.model.WebRTCSignal;
 import com.oceangromits.firmware.service.SimpClientService;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Objects;
+import java.security.Principal;
 
 @Component
 public class SignallerEventListener {
@@ -25,28 +25,30 @@ public class SignallerEventListener {
     private SimpClientService scs;
 
     @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+    public void handleWebSocketConnectListener(SessionConnectedEvent event) {}
         // Stub method for later?
 
 
+    @Autowired
+    public SignallerEventListener(SimpMessageSendingOperations messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
     }
+
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-
-
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String deviceId = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("clientId");
+        Principal sender = headerAccessor.getUser();
 
-        if (deviceId == null) return;
+        if (sender == null) return;
 
-        logger.info("Device disconnected : " + deviceId + ", Currently " + scs.getClientCount() + " client's connected");
+        logger.info("Device disconnected : " + sender + ", Currently " + scs.getClientCount() + " client's connected");
 
-        WebRTCSignal signal = new WebRTCSignal();
-        signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
-        signal.setSender(deviceId);
-        messagingTemplate.convertAndSend("/signal/public", signal);
+        WebRTCMessage signal = new WebRTCMessage();
+        signal.setSignalType(WebRTCMessage.SignalType.DEVICE_LEAVE);
+        signal.setSender(sender.getName());
+        messagingTemplate.convertAndSend("/msg/public", signal);
 
     }
 

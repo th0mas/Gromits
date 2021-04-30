@@ -8,10 +8,8 @@ This file also defines a random device ID and our message type constants.
 
 import SockJS from 'sockjs-client'
 import {Client} from "@stomp/stompjs";
-import { hasRole } from './tokenUtils';
+import { clientId, hasRole } from './tokenUtils';
 
-const deviceId = "gromit_test"
-//Math.random().toString(36).substring(7)
 
 export const DEVICE_JOIN = 'DEVICE_JOIN'
 export const DEVICE_LEAVE = 'DEVICE_LEAVE'
@@ -25,7 +23,9 @@ class Signaller {
   socket;
   errCallback;
   authErrCallback;
+  setTokenCallback;
   token;
+  clientId
 
   callbacks;
 
@@ -43,7 +43,7 @@ class Signaller {
     console.log("Attempting connect....")
 
     // Set our header conditionally if we have a token or not
-    this.stompClient.connectHeaders = this.token ? {token: this.token} : {name: deviceId}
+    this.stompClient.connectHeaders = this.token ? {token: this.token} : {}
 
     // Register our callbacks
     this.stompClient.onConnect = () => this.handleConnect()
@@ -54,25 +54,25 @@ class Signaller {
     // Cleanly disconnect from old socket
     // We need this as we sometimes call `connect` on an already open socket with different tokens/roles.
     // This helps our server recognise our new roles and keeps our state management cleaner.
-    try {
-      this.stompClient.deactivate()
-        .then(this.stompClient.activate())
-    } catch (e) {
-      console.log(e)
-    }
+    this.stompClient.activate()
 
   }
 
   disconnect() {
-    this.stompClient.deactivate()
+    return this.stompClient.deactivate()
   }
 
   setToken(token) {
     this.token = token
+    this.clientId = clientId(token)
   }
 
   setAuthErrCallback(f) {
     this.authErrCallback = f
+  }
+
+  setSetTokenCallback(f) {
+    this.setTokenCallback = f
   }
 
   // Abstract away our error handler a bit
@@ -105,7 +105,6 @@ class Signaller {
     this.registerSubscriptions()
 
     let payload = {
-      sender: deviceId,
       type: DEVICE_JOIN
     }
 
@@ -116,11 +115,12 @@ class Signaller {
   }
 
   registerSubscriptions() {
-    this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/msg/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/user/queue/message', (payload) => this.handleDirectMessage(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
     if (hasRole(this.token, "ROLE_VIDEO")) {
-      this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
+      this.stompClient.subscribe('/msg/private', (payload) => this.handleSignal(payload))
     }
   }
 
@@ -139,7 +139,7 @@ class Signaller {
   //    out now
   handleSignal(signal) {
     let content = JSON.parse(signal.body)
-    if (content.sender === deviceId) {
+    if (content.sender === this.clientId) {
       console.log("discarding own message")
       return
     }
@@ -147,8 +147,18 @@ class Signaller {
     this.callbacks.forEach((callback) => callback(content))
   }
 
+  handleDirectMessage(signal) {
+    let content = JSON.parse(signal.body)
+
+    if (content.type === "TOKEN") {
+      console.log("Received new token, trying to set!")
+      this.setTokenCallback(content.token)
+    }
+
+  }
+
   send(obj) {
-    let payload = {...obj, sender: deviceId}
+    let payload = {...obj}
     this.stompClient.publish({
       destination: "/webrtc/signal",
       body: JSON.stringify(payload)
