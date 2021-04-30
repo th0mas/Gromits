@@ -9,7 +9,6 @@ import {
 import Stream from '../Stream'
 import SignalProvider from "../SignalProvider";
 import SmartData from '../SmartData';
-import Admin from "../Admin";
 import Auth from "../Auth";
 import TokenProvider from "../TokenProvider";
 import Dash from '../Dash';

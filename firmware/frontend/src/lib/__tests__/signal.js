@@ -14,7 +14,7 @@ jest.mock('@stomp/stompjs', () => {
           return {
                subscribe: mockStompMethod,
                publish: mockStompMethod,
-               activate: mockStompMethod
+              activate: mockStompMethod,
           }
       })
   }
@@ -29,7 +29,9 @@ it("should init properly", () => {
 
 describe("test class methods", () => {
   const errCallback = jest.fn()
+
   const s = new Signaller("test", errCallback)
+  let spy = jest.spyOn(s, 'registerSubscriptions').mockImplementation(() => {})
 
   it("connects properly", () => {
     s.connect()
@@ -53,7 +55,7 @@ describe("test class methods", () => {
 
   it("handles connecting properly", () => {
     s.handleConnect()
-    expect(mockStompMethod).toHaveBeenCalledTimes(2)
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 
   it("handles signals properly", () => {
