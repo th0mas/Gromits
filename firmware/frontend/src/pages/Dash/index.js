@@ -3,7 +3,6 @@ import { TokenContext } from '../../contexts'
 
 import {StreamMonitor} from './StreamMonitor'
 
-import submarine from '../../images/submarine.svg'
 import { decodeToken } from '../../lib/tokenUtils'
 import { ClientInfo } from './ClientInfo'
 import {get} from "../../services/api";
@@ -41,13 +40,9 @@ const Dash = () => {
 
   data = data.filter(item => item.name !== me)
 
-  return <div className="flex flex-col h-screen">
-    <div className="flex space-x-2 items-center p-4 mb-2">
-      <img src={submarine} className="h-7 w-7" alt="Ocean Gromits logo"/>
-      <p className="text-2xl font-bold">Ocean Gromits</p>
-    </div>
+  return <div className="flex-1 flex flex-col h-full">
 
-    <div className="flex h-full items-center justify-center">
+    <div className="flex flex-1 h-full items-center justify-center">
       {data.length > 0 ? <>
 
       <div className="bg-white flex h-5/6 flex-col space-y-2 p-4 pb-8 m-4 mb-8 rounded shadow-2xl">

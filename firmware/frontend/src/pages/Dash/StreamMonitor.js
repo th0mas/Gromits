@@ -32,7 +32,7 @@ const PeerStream = ({peer}) => {
     }
 
   }, [videoSrc])
-  return <video autoPlay ref={videoEl} className="h-full w-full">
+  return <video autoPlay ref={videoEl} className="h-full w-full object-cover">
 
   </video>
 }

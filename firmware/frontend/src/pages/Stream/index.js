@@ -1,11 +1,11 @@
 import React, {useEffect, useRef, useContext, useState, useCallback} from 'react'
-import InfoHolder from "../InfoHolder"
-import InfoBox from "../InfoBox";
+import InfoHolder from "../../components/InfoHolder"
+import InfoBox from "../../components/InfoBox";
 
 import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
 import useResource from "../../services/api";
-import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
+import {SetupPromptBox} from "../../components/InfoBox/SetupPromptBox";
 
 const Stream = () => {
   let videoEl = useRef(null)
