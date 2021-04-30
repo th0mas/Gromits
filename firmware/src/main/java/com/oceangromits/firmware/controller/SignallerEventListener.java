@@ -43,7 +43,7 @@ public class SignallerEventListener {
 
         if (sender == null) return;
 
-        logger.info("Device disconnected : " + sender + ", Currently " + scs.getClientCount() + " client's connected");
+        logger.info("Device disconnected : " + sender.getName() + ", Currently " + scs.getClientCount() + " client's connected");
 
         WebRTCMessage signal = new WebRTCMessage();
         signal.setSignalType(WebRTCMessage.SignalType.DEVICE_LEAVE);
