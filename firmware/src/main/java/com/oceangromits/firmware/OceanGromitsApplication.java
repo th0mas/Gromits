@@ -19,6 +19,7 @@ public class OceanGromitsApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/signaller").allowedOrigins("*");
+				registry.addMapping("/api/**").allowedOrigins("*");
 			}
 		};
 	}

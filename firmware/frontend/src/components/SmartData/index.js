@@ -23,7 +23,7 @@ const SmartData = ({api}) => {
         console.warn("Unable to access weather data")
         return (null)
     } else {
-        return <div className={styles.smartData}>
+        return <div className="">
             <p>{temperature(weather)}°C</p>
             <img src={getIconUrl(weather)} alt='Weather Icon'/>
             </div>

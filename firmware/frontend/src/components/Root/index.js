@@ -7,25 +7,29 @@ import {
 } from "react-router-dom"
 
 import Stream from '../Stream'
-import Setup from '../Setup'
 import SignalProvider from "../SignalProvider";
 import SmartData from '../SmartData';
 import Admin from "../Admin";
+import Auth from "../Auth";
+import TokenProvider from "../TokenProvider";
+import Dash from '../Dash';
 
 const signalServerPath = process.env.REACT_APP_SIGNAL_URL  || "http://localhost:8080"
 const apiKey = process.env.REACT_APP_OPENWEATHER_API_KEY
 
 const Root = () => {
   return <>
-    <SignalProvider url={signalServerPath + "/signaller"}>
+      <TokenProvider>
       <Router>
       <Switch>
-        <Route path="/setup"><Setup /></Route>
-        <Route path="/admin"><Admin /></Route>
-        <Route path="/"><Stream /></Route>
+        <Route path="/auth"><Auth /></Route>
+        <SignalProvider url={signalServerPath + "/signaller"}>
+          <Route path="/dash"><Dash /></Route>
+          <Route exact path="/"><Stream /></Route>
+        </SignalProvider>
       </Switch>
       </Router>
-    </SignalProvider>
+      </TokenProvider>
     <SmartData api={apiKey}/>
   </>
 }

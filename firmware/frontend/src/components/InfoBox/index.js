@@ -1,10 +1,11 @@
 import React from 'react'
-import styles from './InfoBox.module.scss'
+
+import warning from './warning.svg'
 
 const InfoBox = ({info}) => {
-  return <div className={styles.infoBox}>
-    <div className={styles.content}>
-      <h3>Somethings gone wrong &#x1F61E; </h3>
+  return <div className="bg-gradient-to-tr from-yellow-500 to-yellow-300 rounded-lg">
+    <div className="p-2 flex flex-row inline-flex items-center space-x-1">
+      <img src={warning} className="h-5 w-5" alt="Warning icon"></img>
       <p>{info}</p>
   </div>
   </div>

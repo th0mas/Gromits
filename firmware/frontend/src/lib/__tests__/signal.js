@@ -24,7 +24,6 @@ it("should init properly", () => {
 
   const errCallback = jest.fn()
   let sig = new Signaller("test", errCallback)
-
   expect(sig.stompClient.webSocketFactory).toBeTruthy();
 })
 

@@ -1,6 +1,6 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,24 +8,21 @@ import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Objects;
+import java.security.Principal;
 
 @Component
 public class SignallerEventListener {
     public static final Logger logger = LoggerFactory.getLogger(SignallerEventListener.class);
 
+    private final SimpMessageSendingOperations messagingTemplate;
+
     @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
-
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        // Stub method for later?
-
-
+    public SignallerEventListener(SimpMessageSendingOperations messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
     }
+
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
@@ -33,18 +30,18 @@ public class SignallerEventListener {
 
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String deviceId = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("clientId");
+        Principal sender = headerAccessor.getUser();
 
-        if (deviceId == null) return;
+        if (sender == null) return;
 
-        SignallerController.clients.remove(deviceId);
+        SignallerController.clients.remove(sender.getName());
 
-        logger.info("Device disconnected : " + deviceId + ", Currently " + SignallerController.clients.size() + " client's connected");
+        logger.info("Device disconnected : " + sender + ", Currently " + SignallerController.clients.size() + " client's connected");
 
-        WebRTCSignal signal = new WebRTCSignal();
-        signal.setType(WebRTCSignal.SignalType.DEVICE_LEAVE);
-        signal.setSender(deviceId);
-        messagingTemplate.convertAndSend("/signal/public", signal);
+        WebRTCMessage signal = new WebRTCMessage();
+        signal.setSignalType(WebRTCMessage.SignalType.DEVICE_LEAVE);
+        signal.setSender(sender.getName());
+        messagingTemplate.convertAndSend("/msg/public", signal);
 
     }
 

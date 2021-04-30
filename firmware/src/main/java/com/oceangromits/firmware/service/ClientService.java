@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.service;
 
-import com.oceangromits.firmware.GromitsException;
+import com.oceangromits.firmware.exceptions.GromitsException;
+import com.oceangromits.firmware.model.Client;
 import com.oceangromits.firmware.model.Role;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
@@ -12,34 +13,57 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Service
 public class ClientService {
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // TODO: Do we need this?
+    public ClientService(ClientRepository clientRepository, PasswordEncoder passwordEncoder,
+                         JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager) {
+        this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationManager = authenticationManager;
+    }
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    public String signIn(String username, String password) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            return jwtTokenProvider.createToken(username, clientRepository.findByName(username).getRoles());
+        } catch (AuthenticationException e) {
+            throw new GromitsException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    public String createAdmin(Client client) {
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
+        client.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
+        clientRepository.save(client);//commenting out fixes test
 
-//    public String signin(String username, String password) {
-//        try {
-//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-//            return jwtTokenProvider.createToken(username, clientRepository.findByName(username).getRoles());
-//        } catch (AuthenticationException e) {
-//            throw new GromitsException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
-//        }
-//    }
+        return jwtTokenProvider.createToken(client.getName(), client.getRoles());
+    }
 
-    public String genClientToken(String clientID) {
-        List<Role> roles = Collections.singletonList(Role.ROLE_CLIENT);
+    public String genClientVideoToken(String clientID) {
+        List<Role> roles = Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_CONNECT);
         return jwtTokenProvider.createToken(clientID, roles);
+    }
+
+    public String genBasicToken(String clientID) {
+        List<Role> roles = Collections.singletonList(Role.ROLE_CONNECT);
+        return jwtTokenProvider.createToken(clientID, roles);
+    }
+
+    public void resetServerDangerously() {
+        clientRepository.deleteAll(); // lol
     }
 }

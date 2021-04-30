@@ -1,6 +1,7 @@
 package com.oceangromits.firmware.config;
 
 import com.oceangromits.firmware.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -15,10 +16,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.util.Objects;
+
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    public WebSocketAuthenticationConfig(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
@@ -28,9 +38,11 @@ public class WebSocketAuthenticationConfig implements WebSocketMessageBrokerConf
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-//                    Authentication user = JwtTokenProvideraccessor.getHeader("token");
-//                    accessor.setUser(user);
+                assert accessor != null;
+                if (StompCommand.CONNECT.equals(accessor.getCommand()) && Objects.nonNull(accessor.getFirstNativeHeader("token"))) {
+                    Authentication user =
+                            jwtTokenProvider.getAuthentication(accessor.getFirstNativeHeader("token"));
+                    accessor.setUser(user);
                 }
                 return message;
             }

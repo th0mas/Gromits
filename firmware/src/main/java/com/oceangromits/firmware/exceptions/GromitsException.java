@@ -1,4 +1,4 @@
-package com.oceangromits.firmware;
+package com.oceangromits.firmware.exceptions;
 
 import org.springframework.http.HttpStatus;
 

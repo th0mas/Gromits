@@ -1,12 +1,14 @@
 package com.oceangromits.firmware.controller;
 
-import com.oceangromits.firmware.model.WebRTCSignal;
+import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
@@ -14,20 +16,34 @@ import java.util.Objects;
 
 @Controller
 public class SignallerController {
-    public static ArrayList<String> clients = new ArrayList<String>();
+    public static ArrayList<String> clients = new ArrayList<>();
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
-    @MessageMapping("/webrtc.signal")
-    @SendTo("/signal/public") // This should not be public in future
-    public WebRTCSignal sendSignal(@Payload WebRTCSignal signal) {
+    /*
+    Manage the sending of WebRTC signals.
+
+    Currently we only attach the sender to the message before sending it on to guarantee the correct user is set.
+    I have no idea why you have to do this manually in Spring.
+     */
+    @MessageMapping("signal")
+    @SendTo("/msg/private")
+    public WebRTCMessage sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
+        signal.setSender(headerAccessor.getUser().getName());
         return signal;
     }
 
-    @MessageMapping("/webrtc.join")
-    @SendTo("/signal/public")
-    public WebRTCSignal joinClient(@Payload WebRTCSignal signal, SimpMessageHeaderAccessor headerAccessor) {
-        String sender = signal.getSender();
+    @MessageMapping("join")
+    @SendTo("/msg/private")
+    public WebRTCMessage joinClient(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor, Authentication auth) {
+
+        String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
+        signal.setSender(headerAccessor.getUser().getName());
+
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            logger.info("Admin connected!");
+            return signal;
+        }
 
         if (clients.size() >= 2) {
             logger.info(sender + " is trying to connect to full instance");
@@ -39,9 +55,7 @@ public class SignallerController {
             clients.add(sender);
         }
 
-
         logger.info("Device connected : " + sender + " currently " + clients.size() + " clients");
-
         return signal;
     }
 }
