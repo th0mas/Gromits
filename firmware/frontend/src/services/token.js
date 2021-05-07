@@ -2,16 +2,13 @@ import {useState, useEffect} from 'react'
 
 const useToken = () => {
   let [token, setToken] = useState("")
-  let [tokenLoaded, setTokenLoaded] = useState(false)
 
   const getToken = () => {
     return localStorage.getItem('token')
   }
 
   const updateToken = (token) => {
-    if (token) {
-      localStorage.setItem('token', token)
-    }
+    localStorage.setItem('token', token)
     setToken(token)
   }
 
@@ -19,12 +16,10 @@ const useToken = () => {
     console.log('you should only see this once')
     let t = getToken()
 
-    t ? setToken(t) : setToken(null)
-
-    setTokenLoaded(true)
+    t ? setToken(t) : setToken("INVALID")
   }, [])
 
-  return [token, updateToken, tokenLoaded]
+  return [token, updateToken]
 
 }
 

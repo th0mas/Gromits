@@ -1,5 +1,6 @@
 import {Signaller} from "../signal"
 import SockJS from 'sockjs-client'
+import {Stomp} from '@stomp/stompjs'
 
 jest.mock('sockjs-client')
 
@@ -25,7 +26,7 @@ jest.mock('@stomp/stompjs', () => {
 it("should init properly", () => {
 
   const errCallback = jest.fn()
-  new Signaller("test", errCallback)
+  let _ = new Signaller("test", errCallback)
 
   expect(SockJS).toHaveBeenCalled()
 })
