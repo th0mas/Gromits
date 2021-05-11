@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { useVideoStream } from '../../lib/stream'
 
 export const StreamMonitor = ({ state: {active, peer} }) => {
-  return <div className=" h-full w-full rounded-3xl m-4 mb-8 shadow-lg overflow-hidden relative">
+  return <div className=" h-4/5 w-full rounded-3xl m-4 mb-8 shadow-lg overflow-hidden relative">
     {
       active ? <PeerStream peer={peer} /> : <StreamPlaceholder />
     }

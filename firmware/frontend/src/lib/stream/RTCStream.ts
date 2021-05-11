@@ -34,10 +34,6 @@ class RTCStream {
         {
           urls: "stun:stun3.l.google.com:19302"
         },
-        {
-          urls: "stun01.sipphone.com"
-        },
-        
       ]
     })
 
