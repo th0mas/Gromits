@@ -39,18 +39,18 @@ bootRun {
 	}
 }
 
-frontend {
-	nodeDistributionProvided = false
-	nodeVersion = '14.15.0'
-	nodeInstallDirectory = file("${projectDir}/node")
-
-	installScript = 'install'
-	assembleScript = 'run build'
-	cleanScript = 'run clean'
-
-	packageJsonDirectory = file("${projectDir}/frontend")
-	verboseModeEnabled = false
-}
+//frontend {
+//	nodeDistributionProvided = false
+//	nodeVersion = '14.15.0'
+//	nodeInstallDirectory = file("${projectDir}/node")
+//
+//	installScript = 'install'
+//	assembleScript = 'run build'
+//	cleanScript = 'run clean'
+//
+//	packageJsonDirectory = file("${projectDir}/frontend")
+//	verboseModeEnabled = false
+//}
 
 // Bundle our frontend with the .jar file
 task copyWebApp(type: Copy) {

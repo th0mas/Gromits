@@ -3,6 +3,7 @@ package com.oceangromits.firmware.model;
 public class Message {
     private String type;
     private String clientID;
+    private String to;
 
     public Message() {}
 
@@ -25,5 +26,13 @@ public class Message {
 
     public void setClientID(String clientID) {
         this.clientID = clientID;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 }
