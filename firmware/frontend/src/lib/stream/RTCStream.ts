@@ -23,7 +23,9 @@ class RTCStream {
     this.pc = new RTCPeerConnection({
       iceServers: [
         {
-          urls: "stun:coturn.tomhaines.uk:3478"
+          urls: "turn:coturn.tomhaines.uk:3478",
+          username: "oceans",
+          credential: "gromits"
         },
         {
           urls: "stun:stun.l.google.com:19302" // Sorry Google - we should use servers we actually own
