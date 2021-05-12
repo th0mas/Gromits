@@ -40,18 +40,18 @@ const Dash = () => {
 
   data = data.filter(item => item.name !== me)
 
-  return <div className="flex-1 flex flex-col h-full">
+  return <div className="flex flex-1 flex-col">
 
-    <div className="flex flex-1 h-full items-center justify-center">
+    <div className="flex flex-1 items-stretch justify-center">
       {data.length > 0 ? <>
 
-      <div className="bg-white flex h-5/6 flex-col space-y-2 p-4 pb-8 m-4 mb-8 rounded shadow-2xl">
+      <div className="flex flex-col space-y-2 p-4 pb-8 m-4 mb-8 rounded shadow-2xl">
         {data.map((client, index) => 
           <ClientInfo client={client} key={client.name} getData={getData} setPeer={setPeer}/>
         )}
       </div>
 
-      <div className="flex flex-1 items-center justify-center h-4/6 w-1/2">
+      <div className="flex flex-1 items-center justify-center">
           <StreamMonitor state={state}/>
       </div>
 

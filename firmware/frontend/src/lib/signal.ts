@@ -10,6 +10,7 @@ import {Client, IFrame} from "@stomp/stompjs";
 import { clientId, hasRole } from './tokenUtils';
 import { Signal } from './stream/P2PStream'
 
+
 export const DEVICE_JOIN = 'DEVICE_JOIN'
 export const DEVICE_LEAVE = 'DEVICE_LEAVE'
 export const VIDEO_OFFER = 'VIDEO_OFFER'

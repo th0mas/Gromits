@@ -23,6 +23,9 @@ class RTCStream {
     this.pc = new RTCPeerConnection({
       iceServers: [
         {
+          urls: "stun:coturn.tomhaines.uk:19302"
+        },
+        {
           urls: "stun:stun.l.google.com:19302" // Sorry Google - we should use servers we actually own
         },
         {
@@ -34,10 +37,6 @@ class RTCStream {
         {
           urls: "stun:stun3.l.google.com:19302"
         },
-        {
-          urls: "stun01.sipphone.com"
-        },
-        
       ]
     })
 
