@@ -198,19 +198,19 @@ class OceanGromitsApplicationTests {
 	}
 
 	//SignallerController tests
-	@Test
-	void testsendSignal(){
-
-		SignallerController TestSignallerController=new SignallerController();
-		WebRTCMessage Testsignal=new WebRTCMessage();
-		SimpMessageHeaderAccessor TestheaderAccessor=SimpMessageHeaderAccessor.create();
-		TestheaderAccessor.setUser(TestPrincipal);
-		WebRTCMessage ReturnedSignal=TestSignallerController.sendSignal(Testsignal,TestheaderAccessor);
-		WebRTCMessage ExampleSignal=new WebRTCMessage();
-		ExampleSignal.setSender(TestheaderAccessor.getUser().getName());
-		assertEquals(ReturnedSignal.getSender(),ExampleSignal.getSender());//tests if the signal senders are the same
-																			//as can't test if signals are identical
-	}
+//	@Test
+//	void testsendSignal(){
+//
+//		SignallerController TestSignallerController=new SignallerController();
+//		WebRTCMessage Testsignal=new WebRTCMessage();
+//		SimpMessageHeaderAccessor TestheaderAccessor=SimpMessageHeaderAccessor.create();
+//		TestheaderAccessor.setUser(TestPrincipal);
+//		WebRTCMessage ReturnedSignal=TestSignallerController.sendSignal(Testsignal,TestheaderAccessor);
+//		WebRTCMessage ExampleSignal=new WebRTCMessage();
+//		ExampleSignal.setSender(TestheaderAccessor.getUser().getName());
+//		assertEquals(ReturnedSignal.getSender(),ExampleSignal.getSender());//tests if the signal senders are the same
+//																			//as can't test if signals are identical
+//	}
 
 
 	//GromitsException tests
