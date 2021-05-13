@@ -3,12 +3,10 @@ package com.oceangromits.firmware.controller;
 import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
@@ -22,13 +20,6 @@ public class SignallerController {
 
     public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
-
-    @Autowired
-    public SignallerController(SimpMessagingTemplate simpMessagingTemplate) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
-    }
-
     /*
     Manage the sending of WebRTC signals.
 
@@ -36,15 +27,10 @@ public class SignallerController {
     I have no idea why you have to do this manually in Spring.
      */
     @MessageMapping("signal")
-    public void sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
+    @SendTo("/msg/private")
+    public WebRTCMessage sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
         signal.setSender(headerAccessor.getUser().getName());
-
-        if (signal.getTo() == null || "".equals(signal.getTo())) {
-            simpMessagingTemplate.convertAndSend("/msg/private", signal);
-            return;
-        }
-
-        simpMessagingTemplate.convertAndSendToUser(signal.getTo(), "/queue/message", signal);
+        return signal;
     }
 
     @MessageMapping("join")
