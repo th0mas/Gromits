@@ -3,15 +3,13 @@ Signaller is an abstraction over communicating with the signalling server itself
 
 Other parts of the application should only need to use the `send(obj)` method.
 
-This file also defines a random device ID and our message type constants.
  */
 
 import SockJS from 'sockjs-client'
-import {Client} from "@stomp/stompjs";
-import { hasRole } from './tokenUtils';
+import {Client, IFrame} from "@stomp/stompjs";
+import { clientId, hasRole } from './tokenUtils';
+import { Signal } from './stream/P2PStream'
 
-const deviceId = "gromit_test"
-//Math.random().toString(36).substring(7)
 
 export const DEVICE_JOIN = 'DEVICE_JOIN'
 export const DEVICE_LEAVE = 'DEVICE_LEAVE'
@@ -19,22 +17,36 @@ export const VIDEO_OFFER = 'VIDEO_OFFER'
 export const VIDEO_ANSWER = 'VIDEO_ANSWER'
 export const NEW_ICE_CANDIDATE = 'NEW_ICE_CANDIDATE'
 
+export enum Channel { 
+  Private,
+  User
+} 
+
 class Signaller {
   // Define stubs for vars to be set later.
-  stompClient;
-  errCallback;
-  authErrCallback;
-  token;
+  stompClient
+  errCallback
+  authErrCallback: () => void
+  setTokenCallback: (t: string) => void;
+  onConnect?: () => void 
+  token?: string
+  clientId?: string
 
-  callbacks;
+  callbacks: Array<(a: any) => void> = []
+  userCallbacks: Array<(a: any) => void> = []
 
 
   // Creates our socket and stompJs clients
-  constructor(url, errCallback) {
-    this.callbacks = []
+  constructor(url: string, errCallback: (e: string) => void, authErrCallback: () => void, setTokenCallback: (t: string) => void,
+    onConnect: () => void | undefined
+  ) {
     this.errCallback = errCallback
+    this.authErrCallback = authErrCallback
+    this.setTokenCallback = setTokenCallback
+    this.onConnect = onConnect
       
     this.stompClient = new Client()
+    // @ts-ignore
     this.stompClient.webSocketFactory = () => new SockJS(url)
   }
 
@@ -42,7 +54,7 @@ class Signaller {
     console.log("Attempting connect....")
 
     // Set our header conditionally if we have a token or not
-    this.stompClient.connectHeaders = this.token ? {token: this.token} : {name: deviceId}
+    this.stompClient.connectHeaders = this.token ? {token: this.token} : {}
 
     // Register our callbacks
     this.stompClient.onConnect = () => this.handleConnect()
@@ -53,32 +65,24 @@ class Signaller {
     // Cleanly disconnect from old socket
     // We need this as we sometimes call `connect` on an already open socket with different tokens/roles.
     // This helps our server recognise our new roles and keeps our state management cleaner.
-    try {
-      this.stompClient.deactivate()
-        .then(this.stompClient.activate())
-    } catch (e) {
-      console.log(e)
-    }
+    this.stompClient.activate()
 
   }
 
   disconnect() {
-    this.stompClient.deactivate()
+    return this.stompClient.deactivate()
   }
 
-  setToken(token) {
+  setToken(token: string) {
     this.token = token
-  }
-
-  setAuthErrCallback(f) {
-    this.authErrCallback = f
+    this.clientId = clientId(token)
   }
 
   // Abstract away our error handler a bit
-  handle(frame) {
+  handle(frame: IFrame | String) {
     this.errCallback(`Signal: ${frame}`)
 
-    if (frame.headers) {
+    if (this.isIFrame(frame)) {
       if (frame.headers.message.includes("Access is denied") || frame.headers.message.includes("SignatureException")) {
         console.log("attempting auth callback...")
         this.authErrCallback()
@@ -87,13 +91,18 @@ class Signaller {
   }
 
   // Allow other classes to register callbacks
-  registerRTCCallback(callback) {
-    this.callbacks.push(callback)
+  registerRTCCallback(callback: (a: any) => void, channel?: Channel) {
+    if (channel === Channel.Private || !channel)  {
+      this.callbacks.push(callback)
+    } else if (channel === Channel.User) {
+      this.userCallbacks.push(callback)
+    }
   }
 
   // Remove our callbacks - perf optimisation when using Hooks
-  removeRTCCallback(_callback) {
-    this.callbacks = [] // TODO: do this properly
+  removeRTCCallback(callback: (a: any) => void) {
+    this.callbacks.filter(item => item != callback)
+    this.userCallbacks.filter(item => item != callback)
   }
 
   // internal method to handle our initial connection and subscribe to needed channels
@@ -103,28 +112,32 @@ class Signaller {
 
     this.registerSubscriptions()
 
-    let payload = {
-      sender: deviceId,
-      type: DEVICE_JOIN
-    }
+    // let payload = {
+    //   type: DEVICE_JOIN
+    // }
 
-    this.stompClient.publish({
-      destination: "/webrtc/join",
-      body: JSON.stringify(payload)
-    })
+    // this.stompClient.publish({
+    //   destination: "/webrtc/join",
+    //   body: JSON.stringify(payload)
+    // })
+
+    if (this.onConnect) {
+      this.onConnect()
+    }
   }
 
   registerSubscriptions() {
-    this.stompClient.subscribe('/signal/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/msg/public', (payload) => this.handleSignal(payload))
+    this.stompClient.subscribe('/user/queue/message', (payload) => this.handleDirectMessage(payload))
 
     // Work around for https://stackoverflow.com/questions/67108426/
     if (hasRole(this.token, "ROLE_VIDEO")) {
-      this.stompClient.subscribe('/signal/private', (payload) => this.handleSignal(payload))
+      this.stompClient.subscribe('/msg/private', (payload) => this.handleSignal(payload))
     }
   }
 
   // Render a nice error for closed connections
-  handleClose(err) {
+  handleClose(err: CloseEvent) {
     if (err.code === 1002) {
       this.handle("Connection to server lost")
       
@@ -136,9 +149,9 @@ class Signaller {
   // Relay our signals to all listening clients.
   //  - might not be needed in the end but worth buulding
   //    out now
-  handleSignal(signal) {
+  handleSignal(signal: any) {
     let content = JSON.parse(signal.body)
-    if (content.sender === deviceId) {
+    if (content.sender === this.clientId) {
       console.log("discarding own message")
       return
     }
@@ -146,13 +159,30 @@ class Signaller {
     this.callbacks.forEach((callback) => callback(content))
   }
 
-  send(obj) {
-    let payload = {...obj, sender: deviceId}
+  handleDirectMessage(signal: any) {
+    let content = JSON.parse(signal.body)
+
+    if (content.type === "TOKEN") {
+      console.log("Received new token, trying to set!")
+      this.setTokenCallback(content.token)
+      return
+    }
+
+
+    this.userCallbacks.forEach((callback) => callback(content))
+  }
+
+  send(obj: Object, to?: string) {
+    let payload = {...obj, to}
     this.stompClient.publish({
       destination: "/webrtc/signal",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
+  }
+
+  private isIFrame(object: any): object is IFrame {
+    return (object as IFrame).headers !== undefined
   }
 
 

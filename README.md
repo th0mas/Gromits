@@ -28,8 +28,16 @@ This should be done in the most robust, and lowest maintenance way possible.
 ## Firmware
 
 Our firmware is a local web server based on the Java Spring framework.
-This will host a JavaScript application that will display the video feed from
-other Gromits and broadcast a video feed from the Gromits own webcam.
+This server handles real-time signalling for the WebRTC clients as well
+as authentication for these channels. It uses a small embedded database
+to record admin authenitcation infomation
+
+## Frontend
+
+The frontend is located within `firmware/frontend` and is a self-contained
+client side JavaScript application. It connects to the signalling server
+specified in the `REACT_APP_SIGNAL_URL` environment variable to negotiate
+authentication and video.
 
 ### Dependencies
 
@@ -79,14 +87,35 @@ The frontend can then be accessed under `localhost:3000`
 
 --- 
 
-### Building for production
+## Deploying
 
-When building for production, several variables need to be set to allow the Gromits to securely access
-each other. 
+Both the front and backend need to be deployed seperately.
 
-```shell
-export REACT_APP_SIGNAL_URL=10.10.10.10 # Remote gromit ip
-export REACT_APP_USERNAME="gromit" # Username for signalling server
-export REACT_APP_PASSWORD="hunter2" # Password for the signalling server
-./gradlew build # Build and compile the firmware into a single .jar file
+### Frontend:
+Make sure you're in the frontend folder: `firmware/frontend`
+
+First, set the required environment variables and then build the frontend application
+```
+REACT_APP_SIGNAL_URL=<URL of signalling server>
+yarn build 
+```
+The compiled assets will then be availiable in `build/`
+
+These can be hosted on any HTTP server or static file host - such as Netlify. If hosting internally
+you can also host within the Spring server by placing the build artifacts in Springs static folder.
+
+
+### Backend:
+
+The backend is a Java Spring Boot applicaion. It needs a random secret key set to make
+sure the application is secure. This secret key is whats used to sign and authenticate access
+keys for the admin api endpoints as well as the video signaller.
+
+```
+SECRET_KEY=<Secret Key> ./gradlew build`
+```
+
+The JAR file can then be run similar to
+```
+java -jar build/libs/firmware.jar
 ```

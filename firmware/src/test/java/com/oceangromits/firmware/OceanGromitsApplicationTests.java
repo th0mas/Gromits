@@ -13,14 +13,20 @@ import com.oceangromits.firmware.model.WebRTCMessage;
 import com.oceangromits.firmware.repository.ClientRepository;
 import com.oceangromits.firmware.security.JwtTokenProvider;
 import com.oceangromits.firmware.service.ClientService;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.support.NativeMessageHeaderAccessor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +37,7 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,11 +53,11 @@ class OceanGromitsApplicationTests {
 
 	public Client TestClient;
 
-	private final JwtTokenProvider jwtTokenProvider;
-	private final AuthenticationManager authenticationManager;
-	private final PasswordEncoder passwordEncoder;
+	private JwtTokenProvider jwtTokenProvider;
+	private AuthenticationManager authenticationManager;
+	private PasswordEncoder passwordEncoder;
 	@Autowired
-	private final ClientRepository clientRepository;
+	private ClientRepository clientRepository;
 	private String ReturnedToken;
 	private String ExampleToken;
 	private String StringId;
@@ -83,7 +90,168 @@ class OceanGromitsApplicationTests {
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.authenticationManager = authenticationManager;
 		this.passwordEncoder = passwordEncoder;
-		this.clientRepository = clientRepository;
+		this.clientRepository =  clientRepository;
+	}
+
+	@Before("")
+	public void initialise(){
+		this.clientRepository=new ClientRepository() {
+			@Override
+			public boolean existsByName(String username) {
+				return false;
+			}
+
+			@Override
+			public Client findByName(String clientName) {
+				return null;
+			}
+
+			@Override
+			public void deleteByName(String username) {
+
+			}
+
+			@Override
+			public List<Client> findAll() {
+				return null;
+			}
+
+			@Override
+			public List<Client> findAll(Sort sort) {
+				return null;
+			}
+
+			@Override
+			public List<Client> findAllById(Iterable<Integer> integers) {
+				return null;
+			}
+
+			@Override
+			public <S extends Client> List<S> saveAll(Iterable<S> entities) {
+				return null;
+			}
+
+			@Override
+			public void flush() {
+
+			}
+
+			@Override
+			public <S extends Client> S saveAndFlush(S entity) {
+				return null;
+			}
+
+			@Override
+			public void deleteInBatch(Iterable<Client> entities) {
+
+			}
+
+			@Override
+			public void deleteAllInBatch() {
+
+			}
+
+			@Override
+			public Client getOne(Integer integer) {
+				return null;
+			}
+
+			@Override
+			public <S extends Client> List<S> findAll(Example<S> example) {
+				return null;
+			}
+
+			@Override
+			public <S extends Client> List<S> findAll(Example<S> example, Sort sort) {
+				return null;
+			}
+
+			@Override
+			public Page<Client> findAll(Pageable pageable) {
+				return null;
+			}
+
+			@Override
+			public <S extends Client> S save(S entity) {
+				return null;
+			}
+
+			@Override
+			public Optional<Client> findById(Integer integer) {
+				return Optional.empty();
+			}
+
+			@Override
+			public boolean existsById(Integer integer) {
+				return false;
+			}
+
+			@Override
+			public long count() {
+				return 0;
+			}
+
+			@Override
+			public void deleteById(Integer integer) {
+
+			}
+
+			@Override
+			public void delete(Client entity) {
+
+			}
+
+			@Override
+			public void deleteAll(Iterable<? extends Client> entities) {
+
+			}
+
+			@Override
+			public void deleteAll() {
+
+			}
+
+			@Override
+			public <S extends Client> Optional<S> findOne(Example<S> example) {
+				return Optional.empty();
+			}
+
+			@Override
+			public <S extends Client> Page<S> findAll(Example<S> example, Pageable pageable) {
+				return null;
+			}
+
+			@Override
+			public <S extends Client> long count(Example<S> example) {
+				return 0;
+			}
+
+			@Override
+			public <S extends Client> boolean exists(Example<S> example) {
+				return false;
+			}
+		};
+		this.authenticationManager= new AuthenticationManager() {
+			@Override
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+				return null;
+			}
+		};
+		this.passwordEncoder=new PasswordEncoder() {
+			@Override
+			public String encode(CharSequence rawPassword) {
+				return null;
+			}
+
+			@Override
+			public boolean matches(CharSequence rawPassword, String encodedPassword) {
+				return false;
+			}
+		};
+		this.jwtTokenProvider=new JwtTokenProvider();
+
+
+
 	}
 
 	@Test
@@ -135,8 +303,8 @@ class OceanGromitsApplicationTests {
 		String ReturnedToken=TestTokenMessage.getToken();
 		assertEquals(ReturnedToken,"token");
 	}
-	
-	//WebRTCSignal tests 
+
+	//WebRTCSignal tests
 	@Test
 	void testgetType(){
 		testWebRTCMessage =new WebRTCMessage();
@@ -155,10 +323,26 @@ class OceanGromitsApplicationTests {
 
 	//ClientService tests
 	@Test
-	void testCreateAdmin(){
+	void testSignIn(){
+		TestClient=new Client();
+		TestClient.setName("username");
+		TestClient.setPassword(this.passwordEncoder.encode("password"));
+		TestClient.setId(1);
+		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
+		this.clientRepository.save(TestClient);
+		TestClientService=new ClientService(this.clientRepository,this.passwordEncoder,this.jwtTokenProvider,this.authenticationManager );
+		ReturnedToken=TestClientService.signIn(TestClient.getName(),"password");
+		ExampleToken=jwtTokenProvider.createToken(TestClient.getName(),TestClient.getRoles());
+		assertEquals(ReturnedToken,ExampleToken);
+	}
+
+	@Test
+	void testCreateAdmin(){//set client service client repository
 		TestClient=new Client();
 		TestClient.setName("username");
 		TestClient.setPassword("password");
+		TestClient.setId(1);
+		TestClientService=new ClientService(this.clientRepository,this.passwordEncoder,this.jwtTokenProvider,this.authenticationManager );
 		ReturnedToken=TestClientService.createAdmin(TestClient);
 		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_ADMIN, Role.ROLE_CONNECT));
 		ExampleToken=jwtTokenProvider.createToken(TestClient.getName(), TestClient.getRoles());
@@ -166,7 +350,8 @@ class OceanGromitsApplicationTests {
 
 	}
 	@Test
-	void testgenClientVideoToken(){
+	void testgenClientVideoToken() throws InterruptedException {
+		Thread.sleep(1);
 		TestClient=new Client();
 		ReturnedToken=TestClientService.genClientVideoToken("1");
 		TestClient.setRoles(Arrays.asList(Role.ROLE_VIDEO, Role.ROLE_CONNECT));
@@ -174,6 +359,8 @@ class OceanGromitsApplicationTests {
 		TestClient.setPassword("password");
 		StringId=Long.toString(TestClient.getId());
 		ExampleToken=jwtTokenProvider.createToken(StringId,TestClient.getRoles());
+		ExampleToken.toString();
+		ReturnedToken.toString();
 		assertEquals(ExampleToken,ReturnedToken);
 	}
 	@Test
@@ -209,7 +396,7 @@ class OceanGromitsApplicationTests {
 		WebRTCMessage ExampleSignal=new WebRTCMessage();
 		ExampleSignal.setSender(TestheaderAccessor.getUser().getName());
 		assertEquals(ReturnedSignal.getSender(),ExampleSignal.getSender());//tests if the signal senders are the same
-																			//as can't test if signals are identical
+		//as can't test if signals are identical
 	}
 
 
