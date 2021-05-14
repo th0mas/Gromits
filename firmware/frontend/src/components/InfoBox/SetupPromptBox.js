@@ -6,7 +6,7 @@ export const SetupPromptBox = () => {
     <div className="p-2 flex flex-col">
       <p className="pb-2 font-bold text-gray-100">Scan the QR Code for Setup</p>
       <div className="bg-white p-4 rounded justify-center shadow-lg">
-        <QRCode value={`https://gromit.local/${window.location}`} renderAs="svg" className="w-full h-full"/>
+        <QRCode value={`${window.location}auth`} renderAs="svg" className="w-full h-full"/>
       </div>
     </div>
   </div>

@@ -33,12 +33,11 @@ const Root = () => {
             <Route path="/dash/" exact ><AuthChecker children={<Dash />} /></Route>
           </DashLayout>
           </Route>
-          <Route exact path="/"><Stream /></Route>
+          <Route exact path="/"><Stream /><SmartData api={apiKey}/></Route>
         </SignalProvider>
       </Switch>
       </Router>
       </TokenProvider>
-      <SmartData api={apiKey}/>
   </>
 }
 
