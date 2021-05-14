@@ -11,7 +11,7 @@ describe("Reducer", () => {
     it("handles disconnects", () => {
         const action = {payload: 'disconnected', type: CONN_STATE_CHANGE}
         const result = reducer({}, action)
-        expect(result).toStrictEqual({videoSrc: null})
+        expect(result).toStrictEqual({videoSrc: null, streamState: action.payload})
     })
 
     it("other action type results in just the state", () => {
