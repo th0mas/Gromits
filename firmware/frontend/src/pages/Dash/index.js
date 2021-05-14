@@ -1,16 +1,18 @@
 import React, {useContext, useEffect, useReducer, useState} from 'react'
+import {Link, useHistory} from 'react-router-dom'
 import { TokenContext } from '../../contexts'
 
 import {StreamMonitor} from './StreamMonitor'
 
 import { decodeToken } from '../../lib/tokenUtils'
 import { ClientInfo } from './ClientInfo'
-import {get} from "../../services/api";
+import {get, post} from "../../services/api";
 import { initialState, reducer } from './reducer'
 
 const Dash = () => {
   let [state, dispatch] = useReducer(reducer, initialState)
   let [token] = useContext(TokenContext)
+  let history = useHistory()
 
   let {data, error, isLoading} = state
 
@@ -62,7 +64,15 @@ const Dash = () => {
 
     <div className="flex flex-col justify-center items-center text-gray-500 text-sm">
       <p>Built by University of Bristol students 2020-2021</p>
-      <p>Privacy Notice | Acknowledgements | Reset Server </p>
+      <p><Link to="/dash/privacy">Privacy Notice</Link> | 
+      <span> </span><Link to="/dash/acknowledgements">Acknowledgements</Link> | 
+       <span onClick={() => {
+         post('admin/reset', {}, token)
+         .then(() => {
+           alert('Server Reset!')
+            history.push('/auth')
+          })
+         }}>Reset Server</span> </p>
     </div>
   </div>
 }
