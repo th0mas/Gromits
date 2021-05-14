@@ -19,4 +19,8 @@ describe("Token Utilities", () => {
     it("Correctly returns false when role not found", () => {
         expect(!hasRole(token, 'admin'))
     })
+
+    it("Correctly finds clientId from token", () => {
+        expect(clientId(token)).toBe('gromit_2bpmk')
+    })
 })
