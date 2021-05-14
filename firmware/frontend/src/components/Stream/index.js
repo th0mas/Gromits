@@ -6,6 +6,7 @@ import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
 import useResource from "../../services/api";
 import {SetupPromptBox} from "../InfoBox/SetupPromptBox";
+import { FilmingNotice } from '../InfoBox/FilmingNotice';
 
 const Stream = () => {
   let videoEl = useRef(null)
@@ -37,6 +38,7 @@ const Stream = () => {
       {(!isLoading && !data) && <SetupPromptBox />}
       { (data && streamErr) && <InfoBox info={streamErr} />}
       { (data && err) && <InfoBox info={err} />}
+      { (streamState === "connected") && <FilmingNotice />}
     </InfoHolder>
   </div>
 }
