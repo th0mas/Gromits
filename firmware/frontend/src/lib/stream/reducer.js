@@ -36,9 +36,9 @@ const reducer = (state, action) => {
 const stateChangeReducer = (state, action) => {
   switch (action.payload) {
     case "disconnected":
-      return {...state, videoSrc: null}
+      return {...state, videoSrc: null, streamState: action.payload}
     default:
-      return state
+      return {...state, streamState: action.payload}
   }
 }
 
