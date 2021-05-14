@@ -1,5 +1,5 @@
 import reducer from "../stream/reducer"
-import {CONN_STATE_CHANGE, NEW_VIDEO_SRC, VIDEO_ERR} from "../stream/events"
+import {CONN_STATE_CHANGE, VIDEO_ERR} from "../stream/events"
 
 describe("Reducer", () => {
     it("Sends video error", () => {
