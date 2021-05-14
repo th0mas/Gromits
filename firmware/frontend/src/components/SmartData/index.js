@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import styles from './SmartData.module.scss'
+import styles from './SmartData.css'
 import {getWeatherData, temperature, getIconUrl} from '../../lib/SmartData'
 
 const SmartData = ({api}) => {
