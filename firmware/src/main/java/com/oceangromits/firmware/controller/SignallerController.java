@@ -4,6 +4,7 @@ import com.oceangromits.firmware.service.SimpClientService;
 import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;

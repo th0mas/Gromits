@@ -101,8 +101,8 @@ class Signaller {
 
   // Remove our callbacks - perf optimisation when using Hooks
   removeRTCCallback(callback: (a: any) => void) {
-    this.callbacks.filter(item => item != callback)
-    this.userCallbacks.filter(item => item != callback)
+    this.callbacks = this.callbacks.filter(item => item != callback)
+    this.userCallbacks = this.userCallbacks.filter(item => item != callback)
   }
 
   // internal method to handle our initial connection and subscribe to needed channels

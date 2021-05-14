@@ -1,5 +1,6 @@
 import {Signaller} from "../signal"
 import SockJS from 'sockjs-client'
+import {Client} from '@stomp/stompjs'
 
 jest.mock('sockjs-client')
 
@@ -9,30 +10,28 @@ const mockStompMethod = jest.fn()
 jest.mock('@stomp/stompjs', () => {
   // Works and lets you check for constructor calls:
   return {
-    Stomp: {
-      over: jest.fn().mockImplementation(() => {
-        return {
-          send: mockStompMethod,
-          connect: mockStompMethod,
-          subscribe: mockStompMethod
-        }
+       Client: jest.fn().mockImplementation(() => {
+          return {
+               subscribe: mockStompMethod,
+               publish: mockStompMethod,
+              activate: mockStompMethod,
+          }
       })
-    }
   }
-
 })
 
 it("should init properly", () => {
 
   const errCallback = jest.fn()
-  new Signaller("test", errCallback)
-
-  expect(SockJS).toHaveBeenCalled()
+  let sig = new Signaller("test", errCallback)
+  expect(sig.stompClient.webSocketFactory).toBeTruthy();
 })
 
 describe("test class methods", () => {
   const errCallback = jest.fn()
+
   const s = new Signaller("test", errCallback)
+  let spy = jest.spyOn(s, 'registerSubscriptions').mockImplementation(() => {})
 
   it("connects properly", () => {
     s.connect()
@@ -56,7 +55,7 @@ describe("test class methods", () => {
 
   it("handles connecting properly", () => {
     s.handleConnect()
-    expect(mockStompMethod).toHaveBeenCalledTimes(2)
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 
   it("handles signals properly", () => {

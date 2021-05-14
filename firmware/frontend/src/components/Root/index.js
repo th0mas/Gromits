@@ -38,7 +38,7 @@ const Root = () => {
       </Switch>
       </Router>
       </TokenProvider>
-    {/* <SmartData api={apiKey}/> */}
+      <SmartData api={apiKey}/>
   </>
 }
 
