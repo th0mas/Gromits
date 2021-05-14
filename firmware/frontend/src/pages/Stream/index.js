@@ -6,11 +6,12 @@ import {useVideoStream} from "../../lib/stream";
 import {SignalContext} from "../../contexts";
 import useResource from "../../services/api";
 import {SetupPromptBox} from "../../components/InfoBox/SetupPromptBox";
+import {FilmingNotice} from "../../components/InfoBox/FilmingNotice";
 
 const Stream = () => {
   let videoEl = useRef(null)
   let [webcamStream, setWebcamStream] = useState()
-  let {videoSrc, streamErr, beaconCallback, setLocalStream} = useVideoStream()
+  let {videoSrc, streamErr, beaconCallback, setLocalStream, streamState} = useVideoStream()
   let {err, connectionStatus} = useContext(SignalContext)
 
   let {data, isLoading} = useResource("setup/status")
@@ -46,6 +47,7 @@ const Stream = () => {
       {(!isLoading && !data) && <SetupPromptBox />}
       { (data && streamErr) && <InfoBox info={streamErr} />}
       { (data && err) && <InfoBox info={err} />}
+      { (streamState === "connected") && <FilmingNotice />}
     </InfoHolder>
   </div>
 }
