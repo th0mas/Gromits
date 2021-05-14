@@ -2,13 +2,13 @@
 const city = "2654675"
 
 const getWeatherData = async (api, set) => {
-        await fetch(`http://api.openweathermap.org/data/2.5/weather?id=${city}&appid=${api}&units=metric`)
+        await fetch(`https://api.openweathermap.org/data/2.5/weather?id=${city}&appid=${api}&units=metric`)
         .then(res => res.json())
         .then(data => set(data))
 }
 
 const getIconUrl = (data) => {
-    return `http://openweathermap.org/img/wn/${icon(data)}@2x.png`
+    return `https://openweathermap.org/img/wn/${icon(data)}@2x.png`
 }
 
 const temperature = (data) => {

@@ -72,7 +72,7 @@ const Dash = () => {
            alert('Server Reset!')
             history.push('/auth')
           })
-         }}>Reset Server</span> </p>
+         }}>Reset Server</span> </p> 
     </div>
   </div>
 }
