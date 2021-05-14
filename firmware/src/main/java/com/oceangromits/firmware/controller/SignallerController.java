@@ -1,5 +1,6 @@
 package com.oceangromits.firmware.controller;
 
+import com.oceangromits.firmware.service.SimpClientService;
 import com.oceangromits.firmware.model.WebRTCMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,26 +9,19 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Controller
 public class SignallerController {
-    public static ArrayList<String> clients = new ArrayList<>();
-
-    public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
-
-    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public SignallerController(SimpMessagingTemplate simpMessagingTemplate) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
-    }
+    private SimpClientService scs;
+
+    public static final Logger logger = LoggerFactory.getLogger(SignallerController.class);
 
     /*
     Manage the sending of WebRTC signals.
@@ -36,21 +30,15 @@ public class SignallerController {
     I have no idea why you have to do this manually in Spring.
      */
     @MessageMapping("signal")
-    public void sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
+    @SendTo("/msg/private")
+    public WebRTCMessage sendSignal(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor) {
         signal.setSender(headerAccessor.getUser().getName());
-
-        if (signal.getTo() == null || "".equals(signal.getTo())) {
-            simpMessagingTemplate.convertAndSend("/msg/private", signal);
-            return;
-        }
-
-        simpMessagingTemplate.convertAndSendToUser(signal.getTo(), "/queue/message", signal);
+        return signal;
     }
 
     @MessageMapping("join")
     @SendTo("/msg/private")
     public WebRTCMessage joinClient(@Payload WebRTCMessage signal, SimpMessageHeaderAccessor headerAccessor, Authentication auth) {
-
         String sender = Objects.requireNonNull(headerAccessor.getUser()).getName();
         signal.setSender(headerAccessor.getUser().getName());
 
@@ -59,17 +47,13 @@ public class SignallerController {
             return signal;
         }
 
-        if (clients.size() >= 2) {
+        if (scs.getClientCount() >= 2) {
             logger.info(sender + " is trying to connect to full instance");
             return null;
         }
 
-        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("clientId", sender);
-        if (sender != null) {
-            clients.add(sender);
-        }
+        logger.info("Device connected : " + sender + " currently " + scs.getClientCount() + " clients");
 
-        logger.info("Device connected : " + sender + " currently " + clients.size() + " clients");
         return signal;
     }
 }

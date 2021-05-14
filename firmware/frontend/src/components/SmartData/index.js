@@ -1,22 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import styles from './SmartData.css'
+import {getWeatherData, temperature, getIconUrl} from '../../lib/SmartData'
 
-// The city id for Bristol. Uisng id other name prevents conflict with other cities named Bristol
-const city = "2654675"
-
-const getWeatherData = (api, set) => {
-        fetch(`http://api.openweathermap.org/data/2.5/weather?id=${city}&appid=${api}&units=metric`)
-        .then(res => res.json())
-        .then(data => set(data))
-}
-
-const temperature = (data) => {
-    return data.main.temp.toFixed(1)
-}
-
-const icon = (data) => {
-    return data.weather[0].icon
-}
- 
 const SmartData = ({api}) => {
     const [weather, setWeather] = useState(null)
 
@@ -35,12 +20,12 @@ const SmartData = ({api}) => {
     }
 
     if (weather == null || weather.main == null) {
-        console.error("Unable to access weather data")
+        console.warn("Unable to access weather data")
         return (null)
     } else {
-        return <div className="">
-            <p>{temperature(weather)}°C</p>
-            <img src={`http://openweathermap.org/img/wn/${icon(weather)}@2x.png`} alt='Weather Icon'/>
+        return <div className="smartData">
+            <p className="temperature">{temperature(weather)}°C</p>
+            <img className="weather" src={getIconUrl(weather)} alt='Weather Icon'/>
             </div>
     }
 }
